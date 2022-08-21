@@ -4,19 +4,13 @@ A backend service using a custom wrapper API. Alternative version of Betiny to l
 ## Install
 As usual ... :-)
 
-## Run
+    yarn add betiny-core
 
-    // dev mode + auto restart
-    yarn dev  
+## Usage
 
-    // single process run
-    yarn start
+    const $ = require('betiny-core');
 
-    // multiple process PM2
-    yarn prod 
-
-    // List of existing command 
-    yarn start arguments:list 
+    $.server.start(() => { ... });
 
 # API
 
