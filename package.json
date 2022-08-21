@@ -1,19 +1,23 @@
 {
   "name": "betiny-core",
+  "version": "1.0.0",
+  "description": "Distribuable version of Betiny engine as module",
+  "main": "api/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Braije/betiny-core.git"
+  },
+  "keywords": [
+    "betiny",
+    "core"
+  ],
   "author": "Braije Christophe",
   "license": "ISC",
-  "version": "1.0.0",
-  "description": "POC architecture",
-  "main": "./api/index.js",
-  "dependencies": {
-    "axios": "^0.27.2",
-    "compression": "^1.7.4",
-    "dotenv": "^8.0.0",
-    "events": "^3.0.0",
-    "express": "^4.17.1",
-    "fast-glob": "3.2.7",
-    "helmet": "^3.21.1",
-    "jsonwebtoken": "8.5.1",
-    "mysql2": "^1.6.5"
-  }
+  "bugs": {
+    "url": "https://github.com/Braije/betiny-core/issues"
+  },
+  "homepage": "https://github.com/Braije/betiny-core#readme"
 }
