@@ -1,6 +1,6 @@
 {
   "name": "betiny-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Distribuable version of Betiny engine as module",
   "main": "api/index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Braije/betiny-core#readme",
   "dependencies": {
+    "compression": "^1.7.4",
     "dotenv": "^8.0.0",
     "events": "^3.0.0",
     "express": "^4.17.1",
