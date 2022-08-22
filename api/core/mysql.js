@@ -142,7 +142,7 @@ module.exports = $ => {
   };
 
   // Alias :-)
-  $.mysql.replace = $.utils.replace;
+  $.mysql.replace = $.replace;
 
   /**
    * EVENTS CATCHER

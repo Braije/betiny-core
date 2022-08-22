@@ -94,6 +94,7 @@ module.exports = $ => {
 
   /**
    * SETUP DEFAULT
+   * TODO: Make it configurable?
    */
 
   let instance = $.server.instance();

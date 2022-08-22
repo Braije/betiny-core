@@ -13,6 +13,8 @@ module.exports = $ => {
 
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+  $.delay = delay;
+
   /**
    * PLACEHOLDER => replace
    * Lite templating.
@@ -101,6 +103,8 @@ module.exports = $ => {
     return hash >>> 0;
   };
 
+  $.hash = hash;
+
   /**
    * ID
    * Return a random unique id.
@@ -111,6 +115,8 @@ module.exports = $ => {
   const id = () => {
     return Math.random().toString(36).substr(2, 16);
   };
+
+  $.id = id;
 
   /**
    * FORMAT BYTES
@@ -226,18 +232,6 @@ module.exports = $ => {
 
   };
 
-  /**
-   * EXPOSE
-   */
-
-  $.utils = {
-    id: id,
-    hash: hash,
-    replace: replace,
-    formatBytes: formatBytes,
-    delay: delay,
-    iterate: iterate,
-    merge: merge
-  }
+  $.merge = merge;
 
 };
