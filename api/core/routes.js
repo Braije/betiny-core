@@ -50,31 +50,10 @@ module.exports = $ => {
   };
 
   $.route = {
-
     details: collection => {
-      return routes[collection] || routes;
-    },
-    paths: collection => {
-      let list = $.route.details(collection);
-
-      if (Array.isArray(list)) {
-        return list.map(entry => {
-          return entry.path;
-        });
-      }
-      else {
-
-        let all = {};
-
-        Object.keys(list).map( key => {
-          all[key] = list[key].map(entry => {
-            return entry.path;
-          });
-        });
-
-        return all;
-      }
-
+      let temp = {};
+      temp[collection] = routes[collection];
+      return (collection) ? temp : routes;
     },
     get: (...args) => {
       let chain = buildChain(...args);
@@ -129,14 +108,15 @@ module.exports = $ => {
 
       let size = list[method].length;
 
-      list[method].map((entry, index) => {
-        if (index === size - 1) {
-          $.log.end(url + entry.path);
-        }
-        else {
-          $.log.child(url + entry.path);
-        }
-      });
+      if (size) {
+        list[method].map((entry, index) => {
+          if (index === size - 1) {
+            $.log.end(url + entry.path);
+          } else {
+            $.log.child(url + entry.path);
+          }
+        });
+      }
 
       if (!size) {
         $.log.end("No routes define");
