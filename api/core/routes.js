@@ -50,35 +50,51 @@ module.exports = $ => {
 
   };
 
+  /**
+   * PUBLIC
+   */
+
   $.route = {
-    details: collection => {
-      if (collection) {
+
+    /**
+     *
+     * @param method {string} - optional - route method (get, post, ...)
+     * @returns {{static: *[], post: *[], get: *[], delete: *[], put: *[]}|{}}
+     */
+
+    details: method => {
+      if (method) {
         let temp = {};
-        temp[collection] = routes[collection];
+        temp[method] = routes[method];
         return temp;
       }
       return routes;
     },
+
     get: (...args) => {
       let chain = buildChain(...args);
       routes.get.push(chain);
       return _instance.get(chain.path, chain.middlewares, chain.renderer, chain.error);
     },
+
     post: (...args) => {
       let chain = buildChain(...args);
       routes.post.push(chain);
       return _instance.post(chain.path, chain.middlewares, chain.renderer, chain.error);
     },
+
     put: (...args) => {
       let chain = buildChain(...args);
       routes.put.push(chain);
       return _instance.put(chain.path, chain.middlewares, chain.renderer, chain.error);
     },
+
     delete: (...args) => {
       let chain = buildChain(...args);
       routes.delete.push(chain);
       return _instance.delete(chain.path, chain.middlewares, chain.renderer, chain.error);
     },
+
     static: (...args) => {
       routes.static.push(args[0]);
       if (args.length === 2) {
@@ -89,7 +105,7 @@ module.exports = $ => {
       }
     }
 
-  }
+  };
 
   /**
    * COMMANDS

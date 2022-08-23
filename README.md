@@ -61,6 +61,7 @@ A pool clustering support. Allow you to switch to another table without losing y
     });
 
 ### MIDDELWARE
+Should be setup before any $.route declaration :-)
 
     $.middleware.add( NAME, PRIORITY, ROUTE );
 
