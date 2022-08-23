@@ -3,9 +3,8 @@
  * TODO:
  */
 
-const path = require('path');
+const _path = require('path');
 const fs = require('fs');
-const $ = require("../index");
 
 module.exports = $ => {
 
@@ -28,6 +27,9 @@ module.exports = $ => {
   };
 
   $.file = {
+    stats: file => {
+      return fs.statSync(file);
+    },
     exist: file => {
       return fs.existsSync(file);
     },
