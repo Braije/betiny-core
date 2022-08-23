@@ -108,43 +108,43 @@ module.exports = $ => {
   }
 
   /**
-   * MIDDLEWARE
-   * Trace when debug is enable
-   */
-
-  /* TODO: really needed? Dev prefer using their own log :-)
-  $.middleware.add("REQUEST DEBUG INFO", 10, (req, res, next) => {
-    if ($.env("DEBUG") === "true") {
-      console.log("");
-      $.log.info("REQUEST", req.method, req.originalUrl);
-    }
-    next();
-  });*/
-
-  /**
    * COMMANDS
    */
 
-  $.arguments.add('routes:details', async () => {
-    console.log($.route.details());
-  });
-  $.arguments.add('routes:get', async () => {
-    console.log($.route.details('get'));
-  });
-  $.arguments.add('routes:post', async () => {
-    console.log($.route.details('post'));
-  });
-  $.arguments.add('routes:put', async () => {
-    console.log($.route.details('put'));
-  });
-  $.arguments.add('routes:delete', async () => {
-    console.log($.route.details('delete'));
-  });
-  $.arguments.add('routes:paths', async () => {
-    console.log($.route.paths());
-  });
-  $.arguments.add('routes:api', async () => {
-    console.log($.route);
+  $.arguments.add('routes:list', async params => {
+
+    $.log.back();
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.moveCursor(0,-1);
+    console.log("\n");
+
+    let list = $.route.details(params.method || {});
+    let methods = Object.keys(list);
+    let url = $.server.url();
+
+    methods.map(method => {
+
+      $.log.top("\33[32m" + method.toUpperCase());
+
+      let size = list[method].length;
+
+      list[method].map((entry, index) => {
+        if (index === size - 1) {
+          $.log.end(url + entry.path);
+        }
+        else {
+          $.log.child(url + entry.path);
+        }
+      });
+
+      if (!size) {
+        $.log.end("No routes define");
+      }
+
+    });
+
+    process.exit();
   });
 
 };
