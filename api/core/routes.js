@@ -11,7 +11,8 @@ module.exports = $ => {
     get: [],
     post: [],
     put: [],
-    delete: []
+    delete: [],
+    static: []
   };
 
   /**
@@ -51,9 +52,12 @@ module.exports = $ => {
 
   $.route = {
     details: collection => {
-      let temp = {};
-      temp[collection] = routes[collection];
-      return (collection) ? temp : routes;
+      if (collection) {
+        let temp = {};
+        temp[collection] = routes[collection];
+        return temp;
+      }
+      return routes;
     },
     get: (...args) => {
       let chain = buildChain(...args);
@@ -76,6 +80,7 @@ module.exports = $ => {
       return _instance.delete(chain.path, chain.middlewares, chain.renderer, chain.error);
     },
     static: (...args) => {
+      routes.static.push(args[0]);
       if (args.length === 2) {
         _instance.use(args[0], _engine.static(args[1]));
       }
@@ -98,7 +103,7 @@ module.exports = $ => {
     process.stdout.moveCursor(0,-1);
     console.log("\n");
 
-    let list = $.route.details(params.method || {});
+    let list = $.route.details(params.method);
     let methods = Object.keys(list);
     let url = $.server.url();
 
@@ -106,9 +111,12 @@ module.exports = $ => {
 
       $.log.top("\33[32m" + method.toUpperCase());
 
-      let size = list[method].length;
+      let size = false;
 
-      if (size) {
+      if (list[method]) {
+
+        size = list[method].length;
+
         list[method].map((entry, index) => {
           if (index === size - 1) {
             $.log.end(url + entry.path);
@@ -116,6 +124,7 @@ module.exports = $ => {
             $.log.child(url + entry.path);
           }
         });
+
       }
 
       if (!size) {
