@@ -134,12 +134,6 @@ module.exports = $ => {
    * EVENTS CATCHER
    */
 
-  // TODO: On start, we drop message to indicate "how to"?
-  /*$.on('betiny:server:start', () => {
-    $.log.info("COMMANDS");
-    $.log.end("LIST", "yarn start arguments:list");
-  });*/
-
   // On child process, we handle arguments in the shell and forward it.
   $.on('betiny:process:start', () => {
     let haveSubProcess = process.argv.slice(2, process.argv.length);

@@ -88,7 +88,7 @@ module.exports = $ => {
 
       let server = this.engine.listen(port, hostname, () => {
         if (typeof (args[2] || args[1] || args[0]) === 'function') {
-          (args[3] || args[1] || args[0])();
+          (args[2] || args[1] || args[0])();
         }
       });
 
@@ -126,7 +126,6 @@ module.exports = $ => {
    */
 
   $.on("betiny:process:start", cfg => {
-    console.clear();
     console.log("\n");
     $.log.success("CHILDREN PROCESS START", $.server.url() );
     $.log.end("PROCESS ID", process.pid);
