@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
-    "dev": "nodemon -e js,tpl,css ./index.js",
+    "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
     "stop-win": "Taskkill /IM node.exe /F",
     "stop-linux": "killall node"
   },

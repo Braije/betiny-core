@@ -25,4 +25,11 @@ require("./core/middleware.js")(betiny);
 require("./core/routes.js")(betiny);
 require("./core/child.js")(betiny);
 
+if (!betiny.file.exist("./.env")) {
+    betiny.log.error("ENV", "Your .env configuration is missing.");
+    process.exit();
+}
+
+betiny.fire("betiny:preload");
+
 module.exports = betiny;

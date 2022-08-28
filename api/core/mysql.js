@@ -148,17 +148,18 @@ module.exports = $ => {
    * EVENTS CATCHER
    */
 
-  const checkMysql = () => {
-    $.mysql().query("SELECT 1").then(() => {
-      // TODO: really needed?
-      // $.log.info("MYSQL", "\033[32mOK");
-    }).catch(() => {
-      $.log.info("MYSQL", "\033[31mCheck your MYSQL connection.");
+  $.on("betiny:preload", () => {
+
+    if (!$.env("MYSQL_HOST")) {
+      $.log.error("MYSQL", "\033[31mCheck your .env configuration");
+      process.exit();
+    }
+
+    $.mysql().query("SELECT 1").catch(() => {
+      $.log.error("MYSQL", "\033[31mCheck your connection.");
       process.exit();
     });
-  };
 
-  $.on("betiny:server:start", checkMysql);
-  //$.on("betiny:process:start", checkMysql);
+  });
 
 };

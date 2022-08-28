@@ -39,7 +39,7 @@ module.exports = $ => {
    * EVENTS CATCHER
    */
 
-  $.on("betiny:process:start", () => {
+  $.on("betiny:preload", () => {
 
     /**
      * COMMANDS
