@@ -25,6 +25,8 @@ module.exports = $ => {
         },
         back: () => {
             process.stdout.moveCursor(0,-1);
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
         },
         start: () => {
             console.log("      \33[90m┬\033[0m");

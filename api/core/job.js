@@ -5,7 +5,7 @@
  *
  * SYNTAX
  *
- *    $wt.job("Description of JOB", PARAMS)
+ *    $.job("Description of JOB", PARAMS)
  *      .task("Task description", FUNCTION)
  *      .task("Another description task", [FUNCTION, FUNCTION])
  *      .execute( (total, error) => {
@@ -26,15 +26,18 @@ module.exports = $ => {
      * REFERENCES.
      */
 
+    config = $.merge({
+      console: true,
+      delay: 125
+    }, config);
+
+    this.params = {};
     this.tasks = [];
     this.name = name;
     this.count = 1;
     this.total = 0;
     this.error = [];
     this.progress = false;
-    this.params = {};
-
-    let delay = 125;
 
     /**
      * PRIVATE
@@ -76,7 +79,7 @@ module.exports = $ => {
               $.log.pipe(" \033[32m[OK]\033[90m  " + item.description);
             }
 
-            setTimeout(queue, delay);
+            setTimeout(queue, config.delay);
 
           }
 
@@ -94,7 +97,7 @@ module.exports = $ => {
 
               this.progress = false;
 
-              setTimeout(queue, delay);
+              setTimeout(queue, config.delay);
 
             }
             else {
@@ -109,7 +112,7 @@ module.exports = $ => {
 
           }
 
-        }, delay);
+        }, config.delay);
 
       }
 
@@ -163,8 +166,8 @@ module.exports = $ => {
     /**
      * PUBLIC
      *
-     * @param desc
-     * @param fnc
+     * @param desc {string}
+     * @param fnc {function}
      * @returns {*}
      */
 
@@ -189,7 +192,7 @@ module.exports = $ => {
     /**
      * PUBLIC
      *
-     * @param fnc
+     * @param fnc {function}
      */
 
     this.execute = fnc => {

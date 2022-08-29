@@ -1,6 +1,5 @@
 /**
- * FILES
- * TODO:
+ * FILE SYSTEM
  */
 
 const _path = require('path');
@@ -8,24 +7,9 @@ const fs = require('fs');
 
 module.exports = $ => {
 
-  $.folder = {
-    exist: (path) => {
-      return fs.existsSync(path);
-    },
-    create: (path) => {
-      let exist = $.folder.exist(path);
-      return (exist) ? exist : !!fs.mkdirSync(path, { recursive: true });
-    },
-    delete: (path) => {
-      fs.rmdirSync(path, { recursive: true, force: true });
-
-      return !$.folder.exist(path);
-    }
-  };
-
   /**
-   * CHECK FOLDER
-   * Utility for deep folder creation.
+   * CHECK FOLDER CREATION
+   * Utility for deep folder creation based on file path.
    *
    * @param filePath {string} - any folder path
    * @returns {boolean}
@@ -40,10 +24,86 @@ module.exports = $ => {
     fs.mkdirSync(dirname, { recursive: true });
   }
 
-  // TODO: Turn all into promise?
+  /**
+   * SECURE PATH
+   * Limit the path to TEMP_PATH folder.
+   *
+   * @param fileOrFolder {string} - any folder path
+   * @returns {string|boolean}
+   */
+
+  const securePath = fileOrFolder => {
+
+    let temp = $.env('TEMP_PATH', false);
+
+    if (!temp) {
+      $.log.error("Your TEMP_PATH folder is not defined in your .env");
+      return false;
+    }
+
+    let path = "";
+
+    // Reset folder path => TEMP_PATH/toto/tutu => /toto/tutu
+    if (fileOrFolder.indexOf(temp) > -1) {
+      path = fileOrFolder;
+    }
+
+    // Root path reference => /toto/tutu
+    else if (fileOrFolder.startsWith('/')) {
+      path = _path.resolve(temp + fileOrFolder);
+    }
+
+    // Only path inside temp folder => TEMP_PATH/toto/tutu
+    else {
+      path = _path.resolve(temp, fileOrFolder);
+    }
+
+    // Only inside temp folder => ../../hack
+    if (path.indexOf(temp) === -1) {
+      $.log.error("You can access only inside the TEMP_PATH");
+      return false;
+    }
+
+    // Check path valid string and format => ./.toto/tu.tu@/tata
+    if (/[.\[\]#%&{}<>*?\s\b\0$!'"@|‘“+^`]/.test( _path.parse(path).dir )) {
+      $.log.error("Your path contain invalid string");
+      return false;
+    }
+
+    return path;
+
+  };
+
+  /**
+   * PUBLIC
+   * TODO: Turn all into promise?
+   */
+
   $.file = {
 
+    /**
+     * GET STATS
+     *
+     * @param fileOrFolder {string} - any path
+     * @returns {{
+     *    file: boolean,
+     *    access: Date,
+     *    size: number,
+     *    change: Date,
+     *    update: Date,
+     *    directory: boolean,
+     *    creation: Date
+     *  }|{}}
+     */
+
     stats: fileOrFolder => {
+
+      let path = securePath(fileOrFolder);
+
+      if (!path) {
+        return {};
+      }
+
       try {
 
         // Get info.
@@ -76,24 +136,58 @@ module.exports = $ => {
       }
     },
 
-    exist: fileorFolder => {
-      return fs.existsSync(fileorFolder);
+    /**
+     * EXIST
+     *
+     * @param fileOrFolder {string} - any path
+     * @returns {boolean}
+     */
+
+    exist: fileOrFolder => {
+
+      let path = securePath(fileOrFolder);
+
+      if (!path) {
+        return false;
+      }
+
+      return fs.existsSync(path);
+
     },
+
+    /**
+     * READ
+     *
+     * @param fileOrFolder {string} - any path
+     * @returns {{
+     *    folders: [],
+     *    files: []
+     * }}
+     */
 
     read: fileOrFolder => {
 
-      let info = $.file.stats(fileOrFolder);
+      let path = securePath(fileOrFolder);
+
+      if (!path) {
+        return {
+          folders: [],
+          files: []
+        };
+      }
+
+      let info = $.file.stats(path);
 
       if (info.file) {
         try {
-          return fs.readFileSync(fileOrFolder, "utf8");
+          return fs.readFileSync(path, "utf8");
         } catch (e) {
           return "";
         }
       }
       else if (info.directory) {
         try {
-          let list = fs.readdirSync(fileOrFolder);
+          let list = fs.readdirSync(path);
           return {
             folders: list.filter(fold => fold.indexOf(".") === -1),
             files: list.filter(fold => fold.indexOf(".") > -1)
@@ -106,36 +200,31 @@ module.exports = $ => {
         }
       }
       else {
-        return "";
+        return {
+          folders: [],
+          files: []
+        };
       }
 
     },
 
-    // TODO: Restrict operations into TEMP_PATH folder
+    /**
+     * CREATE
+     *
+     * @param fileOrFolder
+     * @param data
+     * @returns {string|boolean}
+     */
+
     create: (fileOrFolder = "", data = "") => {
 
-      let temp = $.env('TEMP_PATH', false);
+      let path = securePath(fileOrFolder);
 
-      if (!temp) {
-        return "Your TEMP_PATH folder is not defined in your .env";
-      }
-
-      // Only path inside temp folder.
-      let path = _path.resolve(temp, fileOrFolder);
-
-      // Only inside temp folder => ../../hack
-      if (path.indexOf(temp) === -1) {
-        return "Haha well try.";
-      }
-
-      // Check path valid string and format => ./.toto/tu.tu@/tata
-      if (/[\.\[\]#%&{}<>*?\s\b\0$!'"@|‘“+^`]/.test( _path.parse(path).dir )) {
-        return "Invalid path";
+      if (!path) {
+        return;
       }
 
       let isFile = path.indexOf(".") > -1;
-
-      console.log(path, _path.basename(path));
 
       checkFolder(path);
 
@@ -155,24 +244,22 @@ module.exports = $ => {
 
     },
 
-    // TODO: Restrict operations into TEMP_PATH folder
+    /**
+     * DELETE
+     *
+     * @param path
+     * @returns {boolean}
+     */
+
     delete: (path) => {
       fs.unlinkSync(path);
       return !$.file.exist(path);
+
+      //fs.rmdirSync(path, { recursive: true, force: true });
+      //return !$.folder.exist(path);
+
     }
 
   }
-
-  $.on("betiny:preload", () => {
-
-    console.clear();
-
-    let toto = $.file.create(".toto/tutu.js");
-
-    console.log( toto );
-
-    process.exit();
-
-  });
 
 };
