@@ -134,11 +134,6 @@ module.exports = $ => {
         this.progress = false;
         this.params = {};
 
-        // Implicite call at the end of each job for install and test.
-        if ($.next) {
-          $.next();
-        }
-
       }
 
     };

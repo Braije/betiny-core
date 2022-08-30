@@ -2,75 +2,243 @@
  * TEST ENGINE
  */
 
+// Use internally to bypass the secure limitation from $.file API
 const fs = require("fs");
+const path = require("path");
 
 module.exports = $ => {
 
+    /**
+     * QUEUE
+     * Funny test with ES6 :-)
+     */
 
-    $.test = {
+    class Queue {
 
-        add: (name, config) => {
+        /**
+         *
+         * @param name
+         * @param options
+         * @returns {Queue}
+         */
 
+        constructor (name, options = {}) {
+
+            this.queue = [];
+            this.name = name || "";
+            this.error = 0;
+            this.options = { ...{
+                delay: 25
+            }, ...options};
+
+            return this;
         }
 
+        /**
+         *
+         * @param data
+         * @returns {Queue}
+         */
+
+        set (data) {
+            this.queue = data;
+            return this;
+        }
+
+        /**
+         *
+         * @param cfg
+         * @returns {Queue}
+         */
+
+        each (fnc) {
+            this.options.each = fnc;
+            return this;
+        }
+
+        /**
+         *
+         * @param name
+         * @returns {Queue}
+         */
+
+        describe (name) {
+
+            this.queue.push({
+                name: name
+            });
+
+            return this;
+        }
+
+        /**
+         *
+         * @param name
+         * @param func
+         * @returns {Queue}
+         */
+
+        task (name, func) {
+
+            this.queue.push({
+                name: name,
+                test: func
+            });
+
+            return this;
+        }
+
+        /**
+         *
+         * @param fnc
+         * @returns {Promise<[]>}
+         */
+
+        async check (fnc) {
+
+            let current = this.queue[0];
+
+            if (!current) {
+
+                $.log.end("─────────────────────────────────");
+
+                $.fire("betiny:test:end", {
+                    options: this.options,
+                    total: this.total,
+                    error: this.error
+                });
+
+            }
+
+            else {
+
+                // TEST.
+                if (current.test) {
+
+                    current.success = await current.test();
+
+                    if (current.success) {
+                        $.log.child(current.name);
+                    }
+                    else {
+                        this.error++;
+                        $.log.childError(current.name);
+                    }
+
+                }
+
+                // QUEUE SECTION.
+                else {
+                    $.log.section(current.name);
+                }
+
+                // EACH.
+                if (this.options.each) {
+                    await this.options.each(current);
+                }
+
+                this.queue.shift();
+
+                setTimeout( () => {
+                    this.check(fnc);
+                }, this.options.delay);
+            }
+
+            return this.queue;
+        }
+
+        /**
+         *
+         * @param fnc
+         * @returns {[]}
+         */
+
+        run (fnc) {
+
+            $.log.back();
+
+            console.log("");
+            $.log.top("─────────────────────────────────");
+            $.log.pipe("", this.name);
+            $.log.child("─────────────────────────────────");
+
+            // TODO: remove based on "test"
+            this.total = this.queue.length;
+
+            this.check(fnc);
+
+            return this.queue;
+        }
+
+    }
+
+    /**
+     * PUBLIC
+     *
+     * @param args
+     * @returns {Queue}
+     */
+
+    $.test = (...args) => {
+        return new Queue(...args);
     };
 
     /**
-     * TESTS
+     * COMMAND
      */
 
-    $.arguments.add("betiny:test:file", () => {
+    $.arguments.add("betiny:test", (...args) => {
 
-        try {
+        // TODO: $.file.dir(), secure, restrict + aliasing.
+        const readdirSync = (p, a = []) => {
+            if (fs.statSync(p).isDirectory()) {
+                fs.readdirSync(p).map(f => readdirSync(a[a.push(path.join(p, f)) - 1], a))
+            }
+            return a;
+        };
+        let tutu = readdirSync(__dirname);
 
-            $.log.back();
-            $.log.child("Collect test");
+        let tata = tutu.filter(str => {
+            return str.endsWith(".test.js");
+        }).map( str => {
+            return {
+                path: path.resolve(str),
+                name: path.basename(str)
+            };
+        })
 
-            let list = fs.readdirSync("api/core");
+        $.log.back();
+        console.log("");
 
-            let tests = list.filter(file => {
-               return file.endsWith(".test.js");
-            });
+        const throttle = async () => {
 
-            console.log(tests);
+            let current = tata[0];
 
-        }
-        catch (e) {
-            $.log.end("\33[31mThis command is only available in core mode.");
-            process.exit();
-        }
+            if (current) {
 
-        process.exit();
+                $.log.test(current.name);
+                $.log.end( path.parse(current.path).dir );
 
-        return;
+                tata.shift();
 
-        let create =  $.file.create("./toto/tutu.js", "what");
-        $.log.child("create", "./toto/tutu.js", create);
+                try {
+                    require(current.path)($);
+                }
+                catch (e) {
+                    throttle();
+                }
 
-        $.log.pipe();
+            }
+            else {
+                console.log("END", "TODO: STATS? etc..");
+                process.exit();
+            }
 
-        let exist1 =  $.file.exist("./toto/tutu.js");
-        $.log.child("exist", "./toto/tutu.js", exist1);
+        };
 
-        let exist2 =  $.file.exist("./toto");
-        $.log.child("exist", "./toto", exist2);
+        $.on("betiny:test:end", throttle);
 
-        let exist3 =  $.file.exist("./unexisting");
-        $.log.child("exist", "./unexisting", exist3);
-
-        let exist4 =  $.file.exist("/toto");
-        $.log.child("exist", "/toto", exist4);
-
-        let read1 = $.file.read("./tata");
-        $.log.child("read", "./tata", read1);
-
-        let read2 = $.file.read("./toto");
-        $.log.child("read", "./toto", read2);
-
-        $.log.pipe();
-        $.log.end("STOP");
-
-        process.exit();
+        throttle();
 
     });
 

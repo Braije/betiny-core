@@ -40,6 +40,9 @@ module.exports = $ => {
         child: (...args) => {
             log.message("      \033[90m├─", ...args);
         },
+        childError: (...args) => {
+            log.message("      \033[90m├─\033[31m", ...args);
+        },
         end: (...args) => {
             log.message("      \033[90m└─", ...args, "\n");
         },
@@ -52,6 +55,15 @@ module.exports = $ => {
         error: (...args) => {
             log.message(" \033[31m✱\033[0m ", ...args);
         },
+
+        test: (...args) => {
+            log.message(" \033[32m \033[32m ", ...args);
+        },
+        section: (...args) => {
+            log.message("      \033[90m|\033[0m ", ...args);
+        },
+
+
         debug: (...args) => {
             log.message(" - ", ...args);
         }

@@ -159,13 +159,14 @@ module.exports = $ => {
      * READ
      *
      * @param fileOrFolder {string} - any path
+     * @param options {object} - TODO: optional
      * @returns {{
      *    folders: [],
      *    files: []
      * }}
      */
 
-    read: fileOrFolder => {
+    read: (fileOrFolder, options) => {
 
       let path = securePath(fileOrFolder);
 
@@ -210,6 +211,7 @@ module.exports = $ => {
 
     /**
      * CREATE
+     * TODO:
      *
      * @param fileOrFolder
      * @param data
@@ -246,6 +248,7 @@ module.exports = $ => {
 
     /**
      * DELETE
+     * TODO:
      *
      * @param path
      * @returns {boolean}
