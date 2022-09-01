@@ -4,7 +4,8 @@ const assert = require('assert');
 
 describe('Utils', () => {
 
-    it('delay', () => {
+    it('delay', async () => {
+        await $.delay(100);
         assert.equal(false, false);
     });
 

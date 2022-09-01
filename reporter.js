@@ -81,62 +81,7 @@ Object.keys(styleCodes).map(styleCode => {
     };
 });
 
-const color = {
-
-    reset: styles.reset.close,
-
-    // Text styles.
-    bold: styles.bold.open,
-    dim: styles.dim.open,
-    italic: styles.italic.open,
-    underline: styles.underline.open,
-    inverse: styles.inverse.open,
-    hidden: styles.hidden.open,
-    strikethrough: styles.strikethrough.open,
-
-    // Foregound classic colours.
-    fgBlack: styles.fgBlack.open,
-    fgRed: styles.fgRed.open,
-    fgGreen: styles.fgGreen.open,
-    fgYellow: styles.fgYellow.open,
-    fgBlue: styles.fgBlue.open,
-    fgMagenta: styles.fgMagenta.open,
-    fgCyan: styles.fgCyan.open,
-    fgWhite: styles.fgWhite.open,
-    fgGray: styles.fgGray.open,
-
-    // Foreground bright colours.
-    fgBrightRed: styles.fgBrightRed.open,
-    fgBrightGreen: styles.fgBrightGreen.open,
-    fgBrightYellow: styles.fgBrightYellow.open,
-    fgBrightBlue: styles.fgBrightBlue.open,
-    fgBrightMagenta: styles.fgBrightMagenta.open,
-    fgBrightCyan: styles.fgBrightCyan.open,
-    fgBrightWhite: styles.fgBrightWhite.open,
-
-    // Background basic colours.
-    bgBlack: styles.bgBlack.open + styles.fgBrightWhite.open,
-    bgRed: styles.bgRed.open + styles.fgWhite.open,
-    bgGreen: styles.bgGreen.open + styles.fgWhite.open,
-    bgYellow: styles.bgYellow.open + styles.fgWhite.open,
-    bgBlue: styles.bgBlue.open + styles.fgWhite.open,
-    bgMagenta: styles.bgMagenta.open + styles.fgWhite.open,
-    bgCyan: styles.bgCyan.open + styles.fgWhite.open,
-    bgWhite: styles.bgWhite.open + styles.fgBlack.open,
-    bgGray: styles.bgGray.open + styles.fgWhite.open,
-    bgGrey: styles.bgGrey.open + styles.fgWhite.open,
-
-    // Background bright colours.
-    bgBrightRed: styles.bgBrightRed.open + styles.fgBrightWhite.open,
-    bgBrightGreen: styles.bgBrightGreen.open + styles.fgBrightWhite.open,
-    bgBrightYellow: styles.bgBrightYellow.open + styles.fgBrightWhite.open,
-    bgBrightBlue: styles.bgBrightBlue.open + styles.fgBrightWhite.open,
-    bgBrightMagenta: styles.bgBrightMagenta.open + styles.fgBrightWhite.open,
-    bgBrightCyan: styles.bgBrightCyan.open + styles.fgBrightWhite.open,
-    bgBrightWhite: styles.bgBrightWhite.open + styles.fgBlack.open
-
-};
-
+const color = require("./api/core/console.js");
 
 'use strict';
 

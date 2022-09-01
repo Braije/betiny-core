@@ -7,7 +7,11 @@
  *  - $.log().icon("sun","yellow").message("msg", "white").message("2").run();
  */
 
+const color = require("./console.js");
+
 module.exports = $ => {
+
+    $.color = color;
 
     /**
      * PRIVATE

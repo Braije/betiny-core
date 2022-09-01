@@ -26,10 +26,13 @@ module.exports = $ => {
 
             this.queue = [];
             this.name = name || "";
-            this.error = 0;
             this.options = { ...{
                 delay: 25
             }, ...options};
+            this.stats = {
+                success: 0,
+                error: 0
+            };
 
             return this;
         }
@@ -47,7 +50,7 @@ module.exports = $ => {
 
         /**
          *
-         * @param cfg
+         * @param fnc
          * @returns {Queue}
          */
 
@@ -100,7 +103,13 @@ module.exports = $ => {
 
             if (!current) {
 
-                $.log.end("─────────────────────────────────");
+                if (this.stats.error) {
+                    $.log.child(this.stats.error);
+                }
+
+                if (typeof fnc === "function") {
+                    fnc(this.stats);
+                }
 
                 $.fire("betiny:test:end", {
                     options: this.options,
@@ -118,18 +127,19 @@ module.exports = $ => {
                     current.success = await current.test();
 
                     if (current.success) {
-                        $.log.child(current.name);
+                        this.stats.success++;
+                        //$.log.child(current.name);
                     }
                     else {
-                        this.error++;
-                        $.log.childError(current.name);
+                        this.stats.error++;
+                        //$.log.childError(current.name);
                     }
 
                 }
 
                 // QUEUE SECTION.
                 else {
-                    $.log.section(current.name);
+                    // $.log.section(current.name);
                 }
 
                 // EACH.
@@ -154,13 +164,6 @@ module.exports = $ => {
          */
 
         run (fnc) {
-
-            $.log.back();
-
-            console.log("");
-            $.log.top("─────────────────────────────────");
-            $.log.pipe("", this.name);
-            $.log.child("─────────────────────────────────");
 
             // TODO: remove based on "test"
             this.total = this.queue.length;
@@ -199,7 +202,7 @@ module.exports = $ => {
         let tutu = readdirSync(__dirname);
 
         let tata = tutu.filter(str => {
-            return str.endsWith(".test.js");
+            return str.endsWith(".betiny.js");
         }).map( str => {
             return {
                 path: path.resolve(str),
@@ -222,7 +225,7 @@ module.exports = $ => {
                 tata.shift();
 
                 try {
-                    require(current.path)($);
+                    await require(current.path)($);
                 }
                 catch (e) {
                     throttle();
