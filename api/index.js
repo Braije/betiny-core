@@ -24,7 +24,7 @@ require("./core/middleware.js")(betiny);
 require("./core/routes.js")(betiny);
 require("./core/child.js")(betiny);
 
-require("./core/test.js")(betiny);
+require("./core/queue_es6.js")(betiny);
 
 betiny.fire("betiny:preload");
 

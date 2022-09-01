@@ -4,6 +4,7 @@
   "description": "Distribuable version of Betiny engine as module",
   "main": "api/index.js",
   "scripts": {
+    "test": "mocha **/*.test.js --reporter ./reporter.js",
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
     "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
@@ -16,7 +17,9 @@
   },
   "keywords": [
     "betiny",
-    "core"
+    "core",
+    "engine",
+    "wrapper"
   ],
   "author": "Braije Christophe",
   "license": "ISC",
@@ -32,5 +35,8 @@
     "helmet": "^3.21.1",
     "jsonwebtoken": "8.5.1",
     "mysql2": "^1.6.5"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0"
   }
 }

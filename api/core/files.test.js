@@ -1,28 +1,54 @@
-/**
- * TEST FILE SYSTEM
- */
 
-module.exports = $ => {
+const $ = require("../index.js");
+const assert = require('assert');
 
-    $.test("My custom file system test app")
+describe('File system', () => {
 
-    .describe("$.file.create")
-        .task("todo", () => { return true; })
-        .task("todo", () => { return true; })
+    describe('file.exist', () => {
 
-    .describe("$.file.exist")
-        .task("./toto", async () => {
-            await $.delay(250);
-            return $.file.exist("./toto");
-        })
-        .task("./unexisting", async () => {
-            return !$.file.exist("./unexisting");
-        })
+        it('./unexisting', () => {
+            let test = $.file.exist('./unexisting');
+            assert.equal(test, false);
+        });
 
-    .describe("$.file.read")
-        .task("test 3", () => { return false; })
-        .task("test 4", async () => { await $.delay(250);  return true; })
+        it('../../hack', () => {
+            let test = $.file.exist("../../hack");
+            assert.equal(test, false);
+        });
 
-    .run();
+        it('./../exist', () => {
+            let test = $.file.exist("./../exist");
+            assert.equal(test, false);
+        });
 
-};
+        it('./exist', () => {
+            let test = $.file.exist("./exist");
+            assert.equal(test, true);
+        });
+
+        it('/exist', () => {
+            let test = $.file.exist("/exist");
+            assert.equal(test, true);
+        });
+
+        it('/', () => {
+            let test = $.file.exist("/");
+            assert.equal(test, true);
+        });
+
+        it('Empty string', () => {
+            let test = $.file.exist("");
+            assert.equal(test, false, "message --- :(");
+        });
+
+    });
+
+    describe('file.read', () => {
+
+        it('Heuuuu', () => {
+
+        });
+
+    });
+
+});

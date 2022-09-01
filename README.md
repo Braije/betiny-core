@@ -6,7 +6,26 @@ As usual ... :-)
 
     yarn add betiny-core
 
-## Usage
+### Config
+Rename ".env-sample" to ".env" and fill it 
+with your own informations :)
+
+    HTTP_PORT=3001
+    HTTP_HOST=127.0.0.1
+    
+    ROOT_PATH=
+
+    # Read/write folder
+    TEMP_PATH=
+    
+    MYSQL_HOST=localhost
+    MYSQL_PORT=3306
+    MYSQL_USER=root
+    MYSQL_PASSWORD=
+    MYSQL_CONNECTION_LIMIT=100
+    MYSQL_DATABASE=betiny
+
+### Usage
 
     const $ = require('betiny-core');
 

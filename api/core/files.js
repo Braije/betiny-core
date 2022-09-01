@@ -37,7 +37,7 @@ module.exports = $ => {
     let temp = $.env('TEMP_PATH', false);
 
     if (!temp) {
-      $.log.error("Your TEMP_PATH folder is not defined in your .env");
+      // $.log.error("Your TEMP_PATH folder is not defined in your .env");
       return false;
     }
 
@@ -60,13 +60,13 @@ module.exports = $ => {
 
     // Only inside temp folder => ../../hack
     if (path.indexOf(temp) === -1) {
-      $.log.error("You can access only inside the TEMP_PATH");
+      // $.log.error("You can access only inside the TEMP_PATH");
       return false;
     }
 
     // Check path valid string and format => ./.toto/tu.tu@/tata
     if (/[.\[\]#%&{}<>*?\s\b\0$!'"@|‘“+^`]/.test( _path.parse(path).dir )) {
-      $.log.error("Your path contain invalid string");
+      // $.log.error("Your path contain invalid string");
       return false;
     }
 
