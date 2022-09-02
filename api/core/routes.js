@@ -31,7 +31,15 @@ module.exports = $ => {
     let middlewares = [betinyRouteConfig = (req, res, next) => {
       req.betiny = config ? args[1] : {};
       next();
-    }].concat($.middleware.chain());
+    }]
+    // .concat($.middleware.chain());
+    .concat((req, res, next) => {
+
+      $.each($.middleware.chain(), (fn, callback) => {
+        fn(req, res, callback);
+      }, next);
+
+    });
 
     return {
       path: path,
@@ -150,6 +158,7 @@ module.exports = $ => {
     });
 
     process.exit();
+
   });
 
 };

@@ -5,6 +5,50 @@
 module.exports = $ => {
 
   /**
+   * ASYNC-EACH
+   * https://gitlab.unistra.fr/benbassou/test-project/-/tree/master/node_modules/async-each
+   */
+
+  const each = (items, next, callback) => {
+
+    if (!Array.isArray(items)) {
+      throw new TypeError('each() expects array as first argument');
+    }
+    if (typeof next !== 'function') {
+      throw new TypeError('each() expects function as second argument');
+    }
+    if (typeof callback !== 'function') {
+      callback = Function.prototype;
+    }
+    if (items.length === 0) {
+      return callback(undefined, items);
+    }
+
+    var transformed = new Array(items.length);
+    var count = 0;
+    var returned = false;
+
+    items.forEach((item, index) => {
+      next(item, (error, transformedItem) => {
+        if (returned) {
+          return;
+        }
+        if (error) {
+          returned = true;
+          return callback(error);
+        }
+        transformed[index] = transformedItem;
+        count += 1;
+        if (count === items.length) {
+          return callback(undefined, transformed);
+        }
+      });
+    });
+  };
+
+  $.each = each;
+
+  /**
    * DELAY
    *
    * @param ms
