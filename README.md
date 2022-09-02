@@ -1,3 +1,12 @@
+#### Memo :)
+
+    yarn test   => mocha **/*.test.js --reporter ./api/reporter.js
+    yarn dev    => dev mode
+    yarn start  => single process mode
+    yarn prod   => cluster process mode (PM2)
+    
+    yarn start betiny:test => internal tools
+
 # About
 A backend service using a custom wrapper API. Alternative version of Betiny to let you manage yourself the directory structure.
 
@@ -7,7 +16,7 @@ As usual ... :-)
     yarn add betiny-core
 
 ### Config
-Rename ".env-sample" to ".env" and fill it 
+Create your own ".env" and fill it 
 with your own informations :)
 
     HTTP_PORT=3001
@@ -25,11 +34,25 @@ with your own informations :)
     MYSQL_CONNECTION_LIMIT=100
     MYSQL_DATABASE=betiny
 
-### Usage
+## Usage
+Your root file can look like:
 
+    // index.js
     const $ = require('betiny-core');
 
+    // Your own organisation folders etc.
+    require("./toto/titi");
+    require("./tata/tutu/tete");
+
+    // ...
     $.server.start(() => { ... });
+
+Others files:
+
+    // ./toto/titi/index.js
+    const $ = require('betiny-core');
+    
+    // Start using any API
 
 # API
 

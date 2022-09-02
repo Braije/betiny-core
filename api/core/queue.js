@@ -1,79 +1,221 @@
 /**
  * QUEUE
- * Alllow you to push in queue any function ...
- * each of them will be execute one by one.
- * The goal is to avoid an overlapping memory usage like
- * usual with any promise approach or classic loop method.
- *
- * SYNTAX
- *
- *    let myQueue = $wt.queue(OPTIONS);
- *    myQueue.push([fnc,fnc...]);
- *    myQueue.push(fnc);
- *    myQueue.execute(callback);
- *
- * NOTE: each return value is forward to the next method as
- * parameter.
+ * Funny test with ES6 :-)
  */
 
 module.exports = $ => {
 
     /**
      * PRIVATE
-     *
-     * @param config
-     * @returns {*}
      */
 
-    const queue = (config = { delay: 25 }) => {
+    class Queue {
 
-        let _cache = [], timer;
+        /**
+         *
+         * @param name
+         * @param options
+         * @returns {Queue}
+         */
 
-        this.push = fnc => {
+        constructor (name, options = {}) {
 
-            // As array.
-            if (Array.isArray(fnc)) {
-                _cache = _cache.concat(fnc);
-            }
-            else if (typeof fnc === 'function') {
-                _cache.push(fnc);
-            }
-
-        };
-
-        this.execute = async fnc => {
-
-            const runs = async result => {
-
-                let exec = _cache[0];
-
-                _cache.shift();
-
-                if (typeof exec === 'function') {
-                    let data = await exec(result);
-                    clearTimeout(timer);
-                    timer = setTimeout( () => {
-                        runs(data);
-                    }, config.delay);
-                }
-                else if (typeof fnc === 'function') {
-                    fnc();
-                }
-
+            this.queue = [];
+            this.name = name || "";
+            this.options = { ...{
+                delay: 25
+            }, ...options};
+            this.stats = {
+                success: [],
+                error: []
             };
 
-            setTimeout(runs, config.delay);
+            return this;
+        }
 
-        };
+        /**
+         *
+         * @param data
+         * @returns {Queue}
+         */
 
-        return this;
+        set (data) {
+            this.queue = data;
+            return this;
+        }
 
-    };
+        /**
+         *
+         * @param fnc
+         * @returns {Queue}
+         */
+
+        each (fnc) {
+            this.options.each = fnc;
+            return this;
+        }
+
+        /**
+         *
+         * @param name
+         * @returns {Queue}
+         */
+
+        describe (name) {
+
+            this.queue.push({
+                name: name
+            });
+
+            return this;
+        }
+
+        /**
+         *
+         * @param name
+         * @param func
+         * @returns {Queue}
+         */
+
+        task (name, func) {
+
+            this.queue.push({
+                name: name,
+                test: func
+            });
+
+            return this;
+        }
+
+        /**
+         *
+         * @param fnc
+         * @returns {Promise<[]>}
+         */
+
+        async check (fnc) {
+
+            let current = this.queue[0];
+
+            if (!current) {
+
+                if (this.stats.error.length) {
+
+                    console.log(
+                        $.color.fgGray,
+                        "     ┬",
+                        $.color.reset
+                    );
+
+                    this.stats.error.map((error, index) => {
+
+                        let isEnd = (index === this.stats.error.length -1);
+                        let tree = isEnd ? "└─" : "├─";
+                        let last = isEnd ? " " : "|";
+
+                        console.log(
+                            $.color.fgGray,
+                            "     " + tree,
+                            $.color.bgBrightRed + $.color.fgBrightWhite,
+                            (index+1) + "",
+                            $.color.reset,
+                            $.color.reset,
+                            error.name,
+                            $.color.fgGray,
+                            "\n     ", last + "     ",
+                            $.color.reset + $.color.fgBrightRed,
+                            error.response,
+                            $.color.fgGray,
+                            "\n     ", last + "     ",
+                            $.color.reset
+                        );
+                    })
+                }
+
+                else {
+                    console.log(
+                        $.color.fgGray,
+                        "     ┬",
+                        "\n      └─",
+                        $.color.bgBrightGreen + $.color.fgBrightWhite,
+                        this.stats.success.length + "",
+                        $.color.reset
+                    );
+                }
+
+                if (typeof fnc === "function") {
+                    fnc(this.stats);
+                }
+
+                $.fire("betiny:test:end", {
+                    options: this.options,
+                    total: this.total,
+                    error: this.stats.error
+                });
+
+            }
+
+            else {
+
+                // TEST.
+                if (current.test) {
+
+                    current.success = await current.test();
+
+                    if (current.success === true) {
+                        this.stats.success.push(current.success);
+                    }
+                    else {
+                        this.stats.error.push({
+                            name: current.name,
+                            response: current.success
+                        });
+                    }
+
+                }
+
+                // EACH.
+                if (this.options.each) {
+                    await this.options.each(current);
+                }
+
+                this.queue.shift();
+
+                setTimeout( () => {
+                    this.check(fnc);
+                }, this.options.delay);
+            }
+
+            return this.queue;
+        }
+
+        /**
+         *
+         * @param fnc
+         * @returns {[]}
+         */
+
+        run (fnc) {
+
+            // TODO: remove based on "test"
+            this.total = this.queue.length;
+
+            this.check(fnc);
+
+            return this.queue;
+        }
+
+    }
 
     /**
-     * API
+     * PUBLIC
+     *
+     * @param args
+     * @returns {Queue}
      */
 
-    $.queue = queue;
+    $.queue = (...args) => {
+        return new Queue(...args);
+    };
 
-}
+};
