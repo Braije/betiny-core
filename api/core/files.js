@@ -255,7 +255,7 @@ module.exports = $ => {
      * DELETE
      * TODO:
      *
-     * @param path
+     * @param fileOrFolder
      * @returns {boolean}
      */
 
