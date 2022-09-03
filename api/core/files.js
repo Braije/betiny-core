@@ -8,23 +8,6 @@ const fs = require('fs');
 module.exports = $ => {
 
   /**
-   * CHECK FOLDER CREATION
-   * Utility for deep folder creation based on file path.
-   *
-   * @param filePath {string} - any folder path
-   * @returns {boolean}
-   */
-
-  const checkFolder = filePath => {
-    var dirname = _path.dirname(filePath);
-    if (fs.existsSync(dirname)) {
-      return true;
-    }
-    checkFolder(dirname);
-    fs.mkdirSync(dirname, { recursive: true });
-  }
-
-  /**
    * SECURE PATH
    * Limit the path to TEMP_PATH folder.
    *
