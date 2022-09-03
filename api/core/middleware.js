@@ -118,14 +118,17 @@ module.exports = $ => {
     let list = $.middleware.list();
     let keys = Object.keys(list);
 
+    $.log($.color.space(6) + $.color.pipe);
+
     keys.map((mid, index) => {
-      if (index === keys.length - 1) {
-        $.log.end(mid, list[mid].name);
-      }
-      else {
-        $.log.child(mid, list[mid].name);
-      }
+      let last = (index === keys.length - 1) ? $.color.end : $.color.child;
+      $.log($.color.space(6) + last,
+          $.color.fgYellow + mid + $.color.reset,
+          list[mid].name
+      );
     });
+
+    $.log();
 
     process.exit();
 

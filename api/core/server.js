@@ -100,7 +100,7 @@ module.exports = $ => {
       const manageError = (e) => {
 
         if (e?.message) {
-          console.log(e.message);
+          $.log(e.message);
         }
 
         $.fire("betiny:server:error");
@@ -126,15 +126,31 @@ module.exports = $ => {
    */
 
   $.on("betiny:process:start", cfg => {
-    console.log("\n");
-    $.log.success("CHILDREN PROCESS START", $.server.url() );
-    $.log.end("PROCESS ID", process.pid);
+    $.log("\n");
+    $.log(
+        $.color.check,
+        "CHILDREN PROCESS START",
+        $.server.url()
+    );
+    $.log(
+        $.color.space(6) + $.color.end,
+        "PROCESS ID",
+        process.pid
+    );
   });
 
   $.on("betiny:server:start", cfg => {
-    console.log("\n");
-    $.log.success("MAIN PROCESS START", $.server.url());
-    $.log.end("PROCESS ID", process.pid);
+    $.log("\n");
+    $.log(
+        $.color.check,
+        "MAIN PROCESS START",
+        $.server.url()
+    );
+    $.log(
+        $.color.space(6) + $.color.end,
+        "PROCESS ID",
+        process.pid
+    );
   });
 
 };

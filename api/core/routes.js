@@ -48,7 +48,7 @@ module.exports = $ => {
 
       // TODO: manage error 404 ...
       error: (req, res) => {
-        $.log.debug("End of routes\n");
+        $.log("End of routes\n");
         res.json({
           error: "End of road :-)",
         });
@@ -121,7 +121,7 @@ module.exports = $ => {
 
   $.arguments.add('routes:list', async params => {
 
-    $.log.back();
+    $.log();
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
     process.stdout.moveCursor(0,-1);
@@ -133,7 +133,7 @@ module.exports = $ => {
 
     methods.map(method => {
 
-      $.log.top("\33[32m" + method.toUpperCase());
+      $.log("\33[32m" + method.toUpperCase());
 
       let size = false;
 
@@ -143,16 +143,16 @@ module.exports = $ => {
 
         list[method].map((entry, index) => {
           if (index === size - 1) {
-            $.log.end(url + entry.path);
+            $.log(url + entry.path);
           } else {
-            $.log.child(url + entry.path);
+            $.log(url + entry.path);
           }
         });
 
       }
 
       if (!size) {
-        $.log.end("No routes define");
+        $.log("No routes define");
       }
 
     });

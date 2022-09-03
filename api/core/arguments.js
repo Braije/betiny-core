@@ -27,8 +27,13 @@ module.exports = $ => {
       let reference = $.arguments.list();
       let referenceKey = Object.keys(reference);
 
-      $.log.info("RUNNING", refname.toUpperCase());
-      $.log.start();
+      $.log(
+          "\n",
+          $.color.plus,
+          "RUNNING",
+          $.color.fgYellow,
+          refname.toUpperCase()
+      );
 
       referenceKey.map(entry => {
         if (entry.startsWith(refname)) {
@@ -142,7 +147,13 @@ module.exports = $ => {
         run(haveSubProcess[0]);
       }
       else {
-        $.log.error("RUNNING", haveSubProcess[0], "doesn't exist!");
+        $.log(
+            "\n" + $.color.fgRed,
+            $.color.error,
+            "RUNNING",
+            $.color.fgYellow + haveSubProcess[0],
+            $.color.reset + "doesn't exist!\n"
+        );
         process.exit();
       }
     }
@@ -156,14 +167,17 @@ module.exports = $ => {
 
     let arguments = Object.keys($.arguments.list());
 
+    $.log($.color.space(6) + $.color.pipe);
+
     arguments.map( (args, index) => {
-      if (index === arguments.length - 1) {
-        $.log.end("COMMAND:", args);
-      }
-      else {
-        $.log.child("COMMAND:", args);
-      }
+      let last = (index === arguments.length - 1) ? $.color.end : $.color.child;
+      $.log($.color.space(6) + last,
+          $.color.fgGray + "COMMAND",
+          $.color.fgYellow + args
+      );
     });
+
+    $.log();
 
     process.exit();
 

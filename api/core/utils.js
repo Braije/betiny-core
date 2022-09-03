@@ -24,9 +24,9 @@ module.exports = $ => {
       return callback(undefined, items);
     }
 
-    var transformed = new Array(items.length);
-    var count = 0;
-    var returned = false;
+    let transformed = new Array(items.length);
+    let count = 0;
+    let returned = false;
 
     items.forEach((item, index) => {
       next(item, (error, transformedItem) => {
@@ -239,6 +239,7 @@ module.exports = $ => {
   /**
    * MERGE
    * Allow you to merge 2 JSON object.
+   * TODO: to review
    *
    * @param defaultJSON
    * @param customJSON

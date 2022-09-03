@@ -49,10 +49,10 @@ module.exports = $ => {
     $.arguments.add("events:list", () => {
         eventCache.map((evt, index) => {
           if (index === eventCache.length - 1) {
-            $.log.end("Event:", evt);
+            $.log("Event:", evt);
           }
           else {
-            $.log.child("Event:" , evt);
+            $.log("Event:" , evt);
           }
         });
         process.exit();

@@ -59,8 +59,7 @@ Others files:
 ### SYSTEM
 
     $.env
-    $.log.xxx
-    $.process.xxx
+    $.log
 
 ### EVENTS
 
@@ -74,11 +73,11 @@ Others files:
     $.replace
     $.formatBytes
     $.iterate
-
-    $.utils.id
-    $.utils.hash
-    $.utils.delay
-    $.utils.merge
+    $.id
+    $.hash
+    $.delay
+    $.merge
+    $.each
 
 ### SERVER
 
@@ -103,7 +102,6 @@ A pool clustering support. Allow you to switch to another table without losing y
     });
 
 ### MIDDELWARE
-Should be setup before any $.route declaration :-)
 
     $.middleware.add( NAME, PRIORITY, ROUTE );
 
@@ -126,4 +124,9 @@ Should be setup before any $.route declaration :-)
 
 ### OTHERS (~)
    
-    $.job( NAME, OPTIONS ).task( NAME, FNC ).execute( FNC )
+    $.queue( NAME, OPTIONS )
+        .describe( NAME )
+        .task( NAME, FNC )
+        .set( ARRAY_COLLECTION )
+        .each( FNC )
+        .run( FNC )

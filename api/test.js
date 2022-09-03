@@ -46,7 +46,6 @@ module.exports = $ => {
         process.stdout.moveCursor(0,-1);
         process.stdout.clearLine();
         process.stdout.cursorTo(0);
-        console.log("");
 
         const throttle = async () => {
 

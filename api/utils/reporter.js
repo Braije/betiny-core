@@ -21,7 +21,7 @@
  */
 
 const path = require("path");
-const color = require("./core/console.js");
+const color = require("./color.js");
 
 'use strict';
 

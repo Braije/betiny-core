@@ -86,17 +86,17 @@ module.exports = $ => {
     let file = params.file || false;
     let dbname = params.dbname || false;
 
-    $.log.child("\33[34mMYSQL INSTALL");
+    $.log("MYSQL INSTALL");
 
     // Check first if exist.
     if(!$.file.exist(file)) {
-      $.log.child("File not found");
-      $.log.pipe();
-      $.log.end("\33[34mFINISH");
+      $.log("File not found");
+      $.log();
+      $.log("FINISH");
       process.exit();
     }
     else {
-      $.log.child("File found:", file.split('/').pop());
+      $.log("File found:", file.split('/').pop());
     }
 
     // Load file and split it into instruction.
@@ -106,7 +106,7 @@ module.exports = $ => {
       return command.replace(/\n|\r|  /ig,' ').trim();
     });
 
-    // $.log.child("Command(s) found:", instructions.length);
+    // $.log("Command(s) found:", instructions.length);
 
     // Create the queue
     let queue = $.queue({ delay: 25 });
@@ -123,10 +123,10 @@ module.exports = $ => {
         });
 
         if (run === false) {
-          $.log.child("\33[31m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
+          $.log("\33[31m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
         }
         else {
-          $.log.child("\33[32m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
+          $.log("\33[32m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
         }
 
       });
@@ -134,8 +134,8 @@ module.exports = $ => {
     });
 
     queue.execute(() => {
-      $.log.pipe();
-      $.log.end("\33[32mFINISH");
+      $.log();
+      $.log("\33[32mFINISH");
       process.exit();
     });
 
@@ -151,12 +151,12 @@ module.exports = $ => {
   $.on("betiny:preload", () => {
 
     if (!$.env("MYSQL_HOST")) {
-      $.log.error("MYSQL", "\033[31mCheck your .env configuration");
+      $.log("MYSQL", "Check your .env configuration");
       process.exit();
     }
 
     $.mysql().query("SELECT 1").catch(() => {
-      $.log.error("MYSQL", "\033[31mCheck your connection.");
+      $.log("MYSQL", "Check your connection.");
       process.exit();
     });
 

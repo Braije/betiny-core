@@ -7,78 +7,17 @@
  *  - $.log().icon("sun","yellow").message("msg", "white").message("2").run();
  */
 
-const color = require("./console.js");
+const color = require("../utils/color.js");
 
 module.exports = $ => {
 
     $.color = color;
 
     /**
-     * PRIVATE
-     */
-
-    const log = {
-
-        message: (...args) => {
-
-            let icon = args[0] || "";
-            let main = args[1]?.toString() || "";
-            let response = args[2] || "";
-
-            console.log(icon, main, "\033[33m", response, "\033[0m", ...args.slice(3));
-        },
-        back: () => {
-            process.stdout.moveCursor(0,-1);
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
-        },
-        start: () => {
-            console.log("      \33[90m┬\033[0m");
-        },
-        top: (...args) => {
-            log.message("      \033[90m┌─", ...args);
-        },
-        pipe: (...args) => {
-            log.message("      \033[90m|", ...args);
-        },
-        child: (...args) => {
-            log.message("      \033[90m├─", ...args);
-        },
-        childError: (...args) => {
-            log.message("      \033[90m├─\033[31m", ...args);
-        },
-        end: (...args) => {
-            log.message("      \033[90m└─", ...args, "\n");
-        },
-        info: (...args) => {
-            log.message(" \033[32m✖\033[0m ", ...args);
-        },
-        success: (...args) => {
-            log.message(" \033[32m✔\033[0m ", ...args);
-        },
-        error: (...args) => {
-            log.message(" \033[31m✱\033[0m ", ...args);
-        },
-
-        test: (...args) => {
-            log.message(" \033[32m \033[32m ", ...args);
-        },
-        section: (...args) => {
-            log.message("      \033[90m|\033[0m ", ...args);
-        },
-
-
-        debug: (...args) => {
-            log.message(" - ", ...args);
-        }
-
-    };
-
-    /**
      * PUBLIC
      */
 
-    $.log = log;
+    $.log = console.log;
 
     /**
      * EVENTS CATCHER
@@ -88,7 +27,7 @@ module.exports = $ => {
     $.on("betiny:server:error", () => {
 
         // Color.
-        console.log("\033[0m\n");
+        $.log($.color.reset);
 
         // Cursor visible.
         process.stderr.write('\x1B[?25h');

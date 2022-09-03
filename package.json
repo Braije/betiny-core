@@ -4,7 +4,7 @@
   "description": "Distribuable version of Betiny engine as module",
   "main": "api/index.js",
   "scripts": {
-    "test": "mocha **/*.test.js --reporter ./api/reporter.js",
+    "test": "mocha **/*.test.js --reporter ./api/utils/reporter.js",
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
     "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
