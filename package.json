@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha **/*.test.js --reporter ./api/utils/reporter.js",
     "test:watch": "mocha **/*.test.js --reporter ./api/utils/reporter.js --watch --watch-files ./api/**/*.js",
+    "check:code": "eslint ./api/**/*.js",
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
     "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
@@ -38,6 +39,8 @@
     "mysql2": "^1.6.5"
   },
   "devDependencies": {
+    "eslint": ">=5.16.0",
+    "eslint-config-google": "^0.14.0",
     "mocha": "^10.0.0"
   }
 }
