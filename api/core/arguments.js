@@ -28,8 +28,7 @@ module.exports = $ => {
       let referenceKey = Object.keys(reference);
 
       $.log(
-          "\n",
-          $.color.plus,
+          "\n" + $.color.plus,
           "RUNNING",
           $.color.fgYellow,
           refname.toUpperCase()
@@ -140,7 +139,10 @@ module.exports = $ => {
    */
 
   // On child process, we handle arguments in the shell and forward it.
-  $.on('betiny:process:start', () => {
+  $.on('betiny:process:start', async () => {
+
+    await $.delay(50);
+
     let haveSubProcess = process.argv.slice(2, process.argv.length);
     if (haveSubProcess.length) {
       if (_arguments[haveSubProcess[0]]) {
@@ -148,8 +150,7 @@ module.exports = $ => {
       }
       else {
         $.log(
-            "\n" + $.color.fgRed,
-            $.color.error,
+            "\n" + $.color.error,
             "RUNNING",
             $.color.fgYellow + haveSubProcess[0],
             $.color.reset + "doesn't exist!\n"
@@ -157,6 +158,7 @@ module.exports = $ => {
         process.exit();
       }
     }
+
   });
 
   /**
@@ -172,8 +174,8 @@ module.exports = $ => {
     arguments.map( (args, index) => {
       let last = (index === arguments.length - 1) ? $.color.end : $.color.child;
       $.log($.color.space(6) + last,
-          $.color.fgGray + "COMMAND",
-          $.color.fgYellow + args
+          $.color.fgGray + "yarn start",
+          $.color.fgYellow + args + $.color.reset
       );
     });
 

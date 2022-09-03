@@ -66,7 +66,7 @@ module.exports = $ => {
       return _express;
     },
 
-    start: (...args) => {
+    start: async (...args) => {
 
       this.engine = check();
 
@@ -77,7 +77,6 @@ module.exports = $ => {
       port = (process.argv.slice(2).length) ? 3002 : port;
 
       let isMain = port === Number($.env("HTTP_PORT", 0));
-
       let eventName = (isMain) ? "betiny:server:start" : "betiny:process:start";
 
       $.fire(eventName, {
@@ -86,7 +85,7 @@ module.exports = $ => {
         isMain: isMain
       });
 
-      let server = this.engine.listen(port, hostname, () => {
+      let server = await this.engine.listen(port, hostname, () => {
         if (typeof (args[2] || args[1] || args[0]) === 'function') {
           (args[2] || args[1] || args[0])();
         }
@@ -133,8 +132,8 @@ module.exports = $ => {
         $.server.url()
     );
     $.log(
-        $.color.space(6) + $.color.end,
-        "PROCESS ID",
+        $.color.space(6) + $.color.child,
+        $.color.fgGray + "PROCESS ID",
         process.pid
     );
   });
@@ -147,8 +146,8 @@ module.exports = $ => {
         $.server.url()
     );
     $.log(
-        $.color.space(6) + $.color.end,
-        "PROCESS ID",
+        $.color.space(6) + $.color.child,
+        $.color.fgGray + "PROCESS ID",
         process.pid
     );
   });

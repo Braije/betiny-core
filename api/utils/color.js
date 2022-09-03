@@ -83,9 +83,9 @@ let color = { ...colors, ...{
     child: colors.fgGray + "├─" + colors.reset,
     end: colors.fgGray + "└─" + colors.reset,
     bottom: colors.fgGray + "┴" + colors.reset,
-    plus: "✖ " + colors.reset,
-    check: "✔ " + colors.reset,
-    error: "✱ " + colors.reset
+    plus: colors.fgCyan + " ✖ " + colors.reset,
+    check: colors.fgGreen + " ✔ " + colors.reset,
+    error: colors.fgRed + " ✱ " + colors.reset
 }};
 
 color.space = (nbr) => {

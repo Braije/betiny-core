@@ -116,7 +116,7 @@ module.exports = $ => {
     instructions.forEach(async (command, index) => {
 
       // We create a queue process.
-      queue.push(async () => {
+      queue.task(async () => {
 
         let run = await $.mysql(dbname).query(command).catch(() => {
           return false;
@@ -133,33 +133,47 @@ module.exports = $ => {
 
     });
 
-    queue.execute(() => {
+    queue.run(() => {
       $.log();
-      $.log("\33[32mFINISH");
+      $.log("FINISH");
       process.exit();
     });
 
   };
 
-  // Alias :-)
-  $.mysql.replace = $.replace;
-
   /**
    * EVENTS CATCHER
    */
 
-  $.on("betiny:preload", () => {
-
+  $.on("betiny:preload", async () => {
     if (!$.env("MYSQL_HOST")) {
-      $.log("MYSQL", "Check your .env configuration");
+      $.log(
+          "\n" + $.color.error,
+          "MYSQL",
+          "Check your .env configuration"
+      );
       process.exit();
     }
-
-    $.mysql().query("SELECT 1").catch(() => {
-      $.log("MYSQL", "Check your connection.");
-      process.exit();
-    });
-
   });
+
+  const checkOnStart = async  () => {
+    await $.mysql().query("SELECT 1").catch(() => {
+      $.log(
+          "\n" + $.color.error,
+          "MYSQL",
+          "Check your connection."
+      );
+      process.exit();
+    }).then(() => {
+      $.log(
+          $.color.space(6) + $.color.end,
+          $.color.fgGray + "MYSQL",
+          $.color.fgYellow + "OK" + $.color.reset
+      );
+    })
+  };
+
+  $.on("betiny:server:start", checkOnStart);
+  $.on("betiny:process:start", checkOnStart);
 
 };

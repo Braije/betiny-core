@@ -4,6 +4,10 @@
 
 module.exports = $ => {
 
+  /**
+   * REFERENCES
+   */
+
   let _instance = $.server.instance();
   let _engine = $.server.engine();
 
@@ -17,6 +21,7 @@ module.exports = $ => {
 
   /**
    * ORDERING MIDDELWARE BY PRIORITY ON EACH ROUTE
+   * Allow adding dynamically any middleware anywhere :-)
    *
    * @param args
    * @returns {{path: *, renderer: *, middlewares: betinyRouteConfig[], error: error}}
@@ -121,19 +126,18 @@ module.exports = $ => {
 
   $.arguments.add('routes:list', async params => {
 
-    $.log();
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.moveCursor(0,-1);
-    console.log("\n");
-
     let list = $.route.details(params.method);
     let methods = Object.keys(list);
     let url = $.server.url();
 
     methods.map(method => {
 
-      $.log("\33[32m" + method.toUpperCase());
+      $.log("");
+      $.log(
+          $.color.space(4),
+          $.color.fgYellow + method.toUpperCase(),
+          $.color.reset
+      );
 
       let size = false;
 
@@ -142,17 +146,21 @@ module.exports = $ => {
         size = list[method].length;
 
         list[method].map((entry, index) => {
-          if (index === size - 1) {
-            $.log(url + entry.path);
-          } else {
-            $.log(url + entry.path);
-          }
+          let last = (index === size - 1) ? $.color.end : $.color.child;
+          $.log(
+              $.color.space(6) + last,
+              url + entry.path,
+              $.color.reset
+          );
         });
 
       }
 
       if (!size) {
-        $.log("No routes define");
+        $.log(
+            $.color.space(6) + $.color.end,
+            "No routes define"
+        );
       }
 
     });

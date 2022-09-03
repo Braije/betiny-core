@@ -47,13 +47,14 @@ module.exports = $ => {
      */
 
     $.arguments.add("events:list", () => {
+
+        $.log($.color.space(6) + $.color.pipe);
         eventCache.map((evt, index) => {
-          if (index === eventCache.length - 1) {
-            $.log("Event:", evt);
-          }
-          else {
-            $.log("Event:" , evt);
-          }
+          let last = (index === eventCache.length - 1) ? $.color.end : $.color.child;
+          $.log(
+             $.color.space(6) + last,
+             $.color.fgYellow + evt + $.color.reset
+          );
         });
         process.exit();
     });
