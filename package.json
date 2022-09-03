@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha **/*.test.js --reporter ./api/utils/reporter.js",
     "test:watch": "mocha **/*.test.js --reporter ./api/utils/reporter.js --watch --watch-files ./api/**/*.js",
+    "test:code": "jshint ./api --config ./config.json",
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
     "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
@@ -38,6 +39,7 @@
     "mysql2": "^1.6.5"
   },
   "devDependencies": {
+    "jshint": "^2.13.5",
     "mocha": "^10.0.0"
   }
 }
