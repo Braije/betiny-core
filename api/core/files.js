@@ -147,7 +147,7 @@ module.exports = $ => {
 
       let path = securePath(fileOrFolder);
 
-      if (!path) {
+      if (!path || fileOrFolder.trim() === '') {
         return false;
       }
 
@@ -171,10 +171,17 @@ module.exports = $ => {
       let path = securePath(fileOrFolder);
 
       if (!path) {
+
+        // As file.
+        if (_path.parse(fileOrFolder).ext) {
+          return false;
+        }
+
         return {
           folders: [],
           files: []
         };
+
       }
 
       let info = $.file.stats(path);
@@ -183,8 +190,9 @@ module.exports = $ => {
         try {
           return fs.readFileSync(path, "utf8");
         } catch (e) {
-          return "";
+          return null;
         }
+
       }
       else if (info.directory) {
         try {
@@ -201,6 +209,12 @@ module.exports = $ => {
         }
       }
       else {
+
+        // As file.
+        if (_path.parse(fileOrFolder).ext) {
+          return false;
+        }
+
         return {
           folders: [],
           files: []
@@ -211,7 +225,6 @@ module.exports = $ => {
 
     /**
      * CREATE
-     * TODO:
      *
      * @param fileOrFolder
      * @param data
@@ -223,25 +236,34 @@ module.exports = $ => {
       let path = securePath(fileOrFolder);
 
       if (!path) {
-        return;
+        return false;
       }
 
+      // TODO: review, using stats!
       let isFile = path.indexOf(".") > -1;
-
-      checkFolder(path);
 
       // FILES.
       if (isFile) {
+
+        let isInvalid = /[\[\]#%&{}<>*?\s\b\0$!'"@|‘“+^`]/.test( path );
+        if (isInvalid) {
+          return false;
+        }
+
         fs.writeFileSync(path, data);
         return $.file.exist(path);
       }
 
       // DIRECTORY
       else {
-        let exist = $.folder.exist(path);
 
-        return "PATH: " + path;
-        //return (exist) ? exist : !!fs.mkdirSync(fileOrFolder, { recursive: true });
+        let isInvalid = /[.\[\]#%&{}<>*?\s\b\0$!'"@|‘“+^`]/.test( path );
+        if (isInvalid) {
+          return false;
+        }
+
+        let exist = $.file.exist(path);
+        return (exist) ? exist : !!fs.mkdirSync(path, { recursive: true });
       }
 
     },
@@ -254,9 +276,29 @@ module.exports = $ => {
      * @returns {boolean}
      */
 
-    delete: (path) => {
-      fs.unlinkSync(path);
-      return !$.file.exist(path);
+    delete: (fileOrFolder) => {
+
+      let path = securePath(fileOrFolder);
+
+      if (!path) {
+        return false;
+      }
+
+      let info = $.file.stats(path);
+
+      if (info.file) {
+        fs.unlinkSync(path);
+        return !$.file.exist(path);
+      }
+      else if (info.directory) {
+
+      }
+      else {
+        return false;
+      }
+
+      //fs.unlinkSync(path);
+      //return !$.file.exist(path);
 
       //fs.rmdirSync(path, { recursive: true, force: true });
       //return !$.folder.exist(path);

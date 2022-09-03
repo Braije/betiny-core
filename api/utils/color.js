@@ -82,7 +82,7 @@ let color = { ...colors, ...{
     pipe: colors.fgGray + "|" + colors.reset,
     child: colors.fgGray + "├─" + colors.reset,
     end: colors.fgGray + "└─" + colors.reset,
-    bottom: colors.fgGray + "" + colors.reset,
+    bottom: colors.fgGray + "┴" + colors.reset,
     plus: "✖ " + colors.reset,
     check: "✔ " + colors.reset,
     error: "✱ " + colors.reset

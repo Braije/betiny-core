@@ -73,7 +73,11 @@ class betinyReporter {
                 console.log(" Error\t\t", stats.failures);
                 console.log("");
 
-                process.exit();
+                let haveSubProcess = process.argv.slice(2, process.argv.length);
+
+                if (haveSubProcess.indexOf("--watch") === -1) {
+                    process.exit();
+                }
 
             })
 
@@ -115,7 +119,7 @@ class betinyReporter {
             .on(EVENT_TEST_PASS, test => {
                 console.log(this.spaces(3),
                     color.fgGray,
-                    "|\t" + color.bgGreen,
+                    "|\t" + color.bgGreen + color.fgBrightWhite,
                     " OK ",
                     color.reset + color.fgGray,
                     test.title,
@@ -127,7 +131,7 @@ class betinyReporter {
             .on(EVENT_TEST_FAIL, (test, err) => {
                 console.log(this.spaces(3),
                     color.fgGray,
-                    "|\t" + color.bgBrightRed,
+                    "|\t" + color.bgBrightRed + color.fgBrightWhite,
                     " KO ",
                     color.reset,
                     test.title,
