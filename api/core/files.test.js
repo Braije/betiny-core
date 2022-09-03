@@ -215,4 +215,28 @@ describe('File system', () => {
 
     });
 
+    describe('file.delete - folder', () => {
+
+        it('Should be able to delete "toto/tutu"', () => {
+            let test = $.file.delete("toto/tutu");
+            assert.equal(test, true);
+        });
+
+        it('Should be able to delete "toto"', () => {
+            let test = $.file.delete("toto");
+            assert.equal(test, true);
+        });
+
+        it('Should not be able to delete "/"', () => {
+            let test = $.file.delete("/");
+            assert.equal(test, false);
+        });
+
+        it('Should not be able to delete "../../"', () => {
+            let test = $.file.delete("../../");
+            assert.equal(test, false);
+        });
+
+    });
+
 });

@@ -292,16 +292,16 @@ module.exports = $ => {
       }
       else if (info.directory) {
 
+        if (path === $.env("TEMP_PATH", false)) {
+          return false;
+        }
+
+        fs.rmdirSync(path, { recursive: true, force: true });
+        return !$.file.exist(path);
       }
       else {
         return false;
       }
-
-      //fs.unlinkSync(path);
-      //return !$.file.exist(path);
-
-      //fs.rmdirSync(path, { recursive: true, force: true });
-      //return !$.folder.exist(path);
 
     }
 
