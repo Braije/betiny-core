@@ -79,6 +79,8 @@ module.exports = $ => {
   /**
    * INSTALL DATABASE
    * Based on external file (dump sql).
+   *
+   * @param params {object}
    */
 
   $.mysql.install = async params => {
@@ -86,17 +88,19 @@ module.exports = $ => {
     let file = params.file || false;
     let dbname = params.dbname || false;
 
-    $.log("MYSQL INSTALL");
+    $.log($.color.space(6) + $.color.top);
 
     // Check first if exist.
     if(!$.file.exist(file)) {
       $.log("File not found");
-      $.log();
       $.log("FINISH");
       process.exit();
     }
     else {
-      $.log("File found:", file.split('/').pop());
+      $.log($.color.space(6) + $.color.end,
+          $.color.fgBlue + "MYSQL INSTALL" + $.color.reset,
+          file.split('/').pop()
+      );
     }
 
     // Load file and split it into instruction.
@@ -106,38 +110,43 @@ module.exports = $ => {
       return command.replace(/\n|\r|  /ig,' ').trim();
     });
 
-    // $.log("Command(s) found:", instructions.length);
-
     // Create the queue
-    let queue = $.queue({ delay: 25 });
     let size = instructions.length;
+    let queue = $.queue("MYSQL");
 
     // For each instructions.
     instructions.forEach(async (command, index) => {
 
-      // We create a queue process.
-      queue.task(async () => {
+      queue.push(async () => {
 
         let run = await $.mysql(dbname).query(command).catch(() => {
           return false;
         });
 
         if (run === false) {
-          $.log("\33[31m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
+          $.log(
+              $.color.space(8) + $.color.fgRed,
+              "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
+              command.slice(0,35) + "..."
+          );
         }
         else {
-          $.log("\33[32m[" + (index+1) + "/" + size + "]", command.slice(0,35) + "...");
+          $.log(
+              $.color.space(8) + $.color.fgGreen,
+              "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
+              command.slice(0,35) + "..."
+          );
         }
 
       });
 
     });
 
-    queue.run(() => {
+    queue.execute(() => {
       $.log();
       $.log("FINISH");
       process.exit();
-    });
+    })
 
   };
 
@@ -167,13 +176,20 @@ module.exports = $ => {
     }).then(() => {
       $.log(
           $.color.space(6) + $.color.end,
-          $.color.fgGray + "MYSQL",
-          $.color.fgYellow + "OK" + $.color.reset
+          $.color.fgGray + "DATABASE:",
+          $.color.fgGreen + "MYSQL" + $.color.reset
       );
     })
   };
 
   $.on("betiny:server:start", checkOnStart);
   $.on("betiny:process:start", checkOnStart);
+
+  $.arguments.add('test:mysql', async args => {
+    await $.mysql.install({
+      file: '/install.sql',
+      dbname: 'nuts'
+    });
+  });
 
 };

@@ -43,11 +43,10 @@ module.exports = $ => {
 
     /**
      * COMMANDS
-     * $.arguments api is not available yet then set the command once process start.
+     * $.arguments api is not available yet then set the command once betiny preload.
      */
 
     $.arguments.add("events:list", () => {
-
         $.log($.color.space(6) + $.color.pipe);
         eventCache.map((evt, index) => {
           let last = (index === eventCache.length - 1) ? $.color.end : $.color.child;

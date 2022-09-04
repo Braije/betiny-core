@@ -44,6 +44,7 @@ module.exports = $ => {
         }
       });
     });
+
   };
 
   $.each = each;

@@ -105,9 +105,9 @@ module.exports = $ => {
   instance.disable('x-powered-by');
 
   $.middleware.add("helmet", 100, helmet());
-  $.middleware.add("compression", 120, compression());
-  $.middleware.add("json_limit", 140, engine.json({ limit: '10MB', extended: true }));
-  $.middleware.add("urlencoded_limit", 150, engine.urlencoded({ limit: '10MB', extended: true }));
+  $.middleware.add("compression", 110, compression());
+  $.middleware.add("json_limit", 120, engine.json({ limit: '10MB', extended: true }));
+  $.middleware.add("urlencoded_limit", 130, engine.urlencoded({ limit: '10MB', extended: true }));
 
   /**
    * COMMANDS

@@ -1,9 +1,9 @@
-
-const _express = require('express');
-
 /**
  * SERVER
+ * Powered by EXPRESS
  */
+
+const _express = require('express');
 
 module.exports = $ => {
 
@@ -20,10 +20,12 @@ module.exports = $ => {
   /**
    * LOCAL
    * Native feature that come from express :-)
+   * But only available under 1 process :-(
+   *
    * TODO: Allow encoding, decoding?
    * TODO: rename as $.store?
    */
-
+/*
   $.local = $.local || {};
 
   $.local.set = (name, content) => {
@@ -34,7 +36,7 @@ module.exports = $ => {
     return check().get(name);
   };
 
-  $.local.env = $.env;
+  $.local.env = $.env;*/
 
   /**
    * SERVER
@@ -86,9 +88,13 @@ module.exports = $ => {
       });
 
       let server = await this.engine.listen(port, hostname, () => {
+
+        $.fire('betiny:arguments:check');
+
         if (typeof (args[2] || args[1] || args[0]) === 'function') {
           (args[2] || args[1] || args[0])();
         }
+
       });
 
       /**
@@ -128,13 +134,13 @@ module.exports = $ => {
     $.log("\n");
     $.log(
         $.color.check,
-        "CHILDREN PROCESS START",
+        "CHILDREN PROCESS START" + $.color.fgCyan,
         $.server.url()
     );
     $.log(
         $.color.space(6) + $.color.child,
-        $.color.fgGray + "PROCESS ID",
-        process.pid
+        $.color.fgGray + "PROCESS:",
+        $.color.fgGreen + process.pid + $.color.reset
     );
   });
 
@@ -142,13 +148,13 @@ module.exports = $ => {
     $.log("\n");
     $.log(
         $.color.check,
-        "MAIN PROCESS START",
+        "MAIN PROCESS START" + $.color.fgCyan,
         $.server.url()
     );
     $.log(
         $.color.space(6) + $.color.child,
-        $.color.fgGray + "PROCESS ID",
-        process.pid
+        $.color.fgGray + "PROCESS:",
+        $.color.fgGreen + process.pid + $.color.reset
     );
   });
 

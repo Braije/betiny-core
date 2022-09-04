@@ -139,9 +139,11 @@ module.exports = $ => {
    */
 
   // On child process, we handle arguments in the shell and forward it.
-  $.on('betiny:process:start', async () => {
+  $.on('betiny:arguments:check', async () => {
 
-    await $.delay(50);
+    // Delay to let preload process do some change.
+    // TODO: review this.
+    await $.delay(500);
 
     let haveSubProcess = process.argv.slice(2, process.argv.length);
     if (haveSubProcess.length) {

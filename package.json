@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha **/*.test.js --reporter ./api/utils/reporter.js",
     "test:watch": "mocha **/*.test.js --reporter ./api/utils/reporter.js --watch --watch-files ./api/**/*.js",
-    "test:code": "jshint ./api --config ./config.json",
+    "test:code": "jshint ./api",
     "start": "node index.js",
     "prod": "pm2 start ./index.js -i -1",
     "dev": "nodemon --ignore ./temp/ -e js,tpl,css ./index.js",
@@ -31,9 +31,11 @@
   "homepage": "https://github.com/Braije/betiny-core#readme",
   "dependencies": {
     "compression": "^1.7.4",
+    "connect-redis": "^6.1.3",
     "dotenv": "^8.0.0",
     "events": "^3.0.0",
     "express": "^4.17.1",
+    "express-session": "^1.17.3",
     "helmet": "^3.21.1",
     "jsonwebtoken": "8.5.1",
     "mysql2": "^1.6.5"
