@@ -10,6 +10,7 @@ module.exports = $ => {
 
     /**
      * PRIVATE
+     * TODO: review: tooo much related to betiny:test :-)
      */
 
     class Queue {

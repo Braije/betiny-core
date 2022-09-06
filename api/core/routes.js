@@ -34,12 +34,18 @@ module.exports = $ => {
     let callback = args[args.length - 1];
 
     let middlewares = [betinyRouteConfig = (req, res, next) => {
-      req.betiny = config ? args[1] : {};
-      next();
-    }]
-    // .concat($.middleware.chain());
-    .concat((req, res, next) => {
 
+      // Custom properties to propagate custom configuration.
+      req.betiny = config ? args[1] : {};
+
+      // Custom and unique id for this route.
+      req.betiny.id = "_" + $.id();
+
+      next();
+
+    }].concat((req, res, next) => {
+
+      // The magic way :-)
       $.each($.middleware.chain(), (fn, callback) => {
         fn(req, res, callback);
       }, next);

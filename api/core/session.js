@@ -2,123 +2,98 @@
  * SESSION
  */
 
-const session  = require("express-session");
+const Redis = require('ioredis');
+const session = require('express-session');
 
 module.exports = $ => {
 
-    /**
-     * REFERENCES
-     */
+    let count = 0;
 
-    let client;
-    let config = {
-        name: "betiny-sessions",
+    const redis = new Redis({
+        name: "betiny",
+        role: "client-requester",
+        maxRetriesPerRequest: 5,
+        retryStrategy (times) {
+            count++;
+            return 3000;
+        },
+        reconnectOnError (err) {
+            const targetError = "READONLY";
+            console.log("---", err);
+            if (err.message.includes(targetError)) {
+                // Only reconnect when the error contains "READONLY"
+                return true; // or `return 1;`
+            }
+        },
+    });
+
+    redis.on("error", (err) => {
+        if (err.message.includes("ECONNREFUSED")) {
+
+            redis.disconnect();
+
+            if (count === 0) {
+                console.log(
+                    $.color.space(6) + $.color.child,
+                    $.color.fgGray + "SESSION",
+                    $.color.fgRed + "REDIS" + $.color.reset
+                );
+            }
+            else {
+                console.log(
+                    "\n" + $.color.space(5) + $.color.bgRed + $.color.fgBrightWhite + " REDIS " +
+                    $.color.reset + "\n"
+                );
+            }
+
+            // TODO: here switch to a memory cache on local?
+        }
+    });
+
+    redis.on("ready", (err) => {
+        console.log(
+            $.color.space(6) + $.color.child,
+            $.color.fgGray + "SESSION",
+            $.color.fgGreen + "REDIS" + $.color.reset
+        );
+    });
+
+    /*
+    var test = redis.ping((err, result) => {
+        console.log(result);
+    });
+    /* */
+
+    $.middleware.add("session1", 50, session({
         secret: 'keyboard cat',
         resave: false,
         saveUninitialized: true,
-        maxAge: 3600,
         cookie: {
-            secure: true
+            maxAge: 1000 * 60 * 60 * 2,
+            sameSite: true,
+            secure: false
         }
-    };
+    }));
 
     /**
      * PUBLIC
      */
 
     $.session = {
-        set: (key, value) => {
-            return client.set(key, value);
+        init: () => {
+          this.id = "_" + $.id();
         },
         get: async (key) => {
             return await $.mysql().query("SELECT userid FROM users LIMIT 0,1").catch(() => {
                 return null;
             });
         },
-        destroy: () => {}
+        set: (key, value) => {
+
+        },
+        remove: (key) => {
+
+        }
     };
-
-    setTimeout(() => {
-        console.log('------------------', $.session.set('toto', true) );
-    }, 1000);
-
-    setTimeout(async () => {
-        console.log('------------------', await $.session.get('toto') );
-    }, 2000);
-
-    /**
-     * MIDDLEWARE
-     */
-
-    $.middleware.add("session", 140, session(config));
-
-    /**
-     * CHECK REDIS CONNECTION ON START
-     * Drop message.rs
-     */
-
-    const check = async () => {
-
-        // Redis bug: infinity reconnect strategy.
-        client = await redis.createClient({
-            legacyMode: true,
-            socket: {
-                reconnectStrategy: (nbr) => {
-                    if (nbr < 5) {
-                        return 0;
-                    }
-                    return new Error("No more retries.");
-                }
-            }
-        });
-
-        client.on('error', (err) => {
-            // console.log("REDIS", err.message);
-        });
-
-        client.connect().then(() => {
-
-            // TODO: Find a queue mechanism for checking something at start.
-            setTimeout(() => {
-                $.log(
-                    $.color.space(6) + $.color.end,
-                    $.color.fgGray + "SESSION:",
-                    $.color.fgGreen + "REDIS" + $.color.reset
-                );
-            }, 10);
-
-            let RedisStore = require("connect-redis")(session);
-
-            config.store = new RedisStore({ client: client });
-
-            $.middleware.add("session", 140, session(config));
-
-        }).catch( err => {
-
-            $.log(
-                $.color.space(6) + $.color.end,
-                $.color.fgGray + "SESSION:",
-                $.color.fgRed + "REDIS" + $.color.reset,
-                $.color.fgGray + "->" + $.color.reset,
-                $.color.fgGreen + "MEMORY" + $.color.reset,
-            );
-
-            $.middleware.add("session", 140, session(config));
-
-        });
-
-    };
-
-    //$.on("betiny:preload", check);
-
-    $.on("betiny:server:start", () => {
-
-        $.log(
-            $.color.space(6) + $.color.child,
-            $.color.fgGray + "SESSION:",
-            $.color.fgRed + "WIP :(" + $.color.reset
-        );
-
-    });
 
 };

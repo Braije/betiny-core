@@ -79,6 +79,7 @@ module.exports = $ => {
   /**
    * INSTALL DATABASE
    * Based on external file (dump sql).
+   * TODO: $.file.read/exist is restricted to TEMP_PATH!
    *
    * @param params {object}
    */
@@ -92,8 +93,12 @@ module.exports = $ => {
 
     // Check first if exist.
     if(!$.file.exist(file)) {
-      $.log("File not found");
-      $.log("FINISH");
+      $.log($.color.space(6) + $.color.end,
+          $.color.fgBlue + "MYSQL INSTALL" + $.color.reset + "\n",
+          $.color.space(8) + "File " +
+          $.color.fgRed +  file.split('/').pop() +  $.color.reset +
+          " not found"
+      );
       process.exit();
     }
     else {
@@ -127,14 +132,14 @@ module.exports = $ => {
           $.log(
               $.color.space(8) + $.color.fgRed,
               "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
-              command.slice(0,35) + "..."
+              command.slice(0,35) + "..." + $.color.reset
           );
         }
         else {
           $.log(
               $.color.space(8) + $.color.fgGreen,
               "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
-              command.slice(0,35) + "..."
+              command.slice(0,35) + "..." + $.color.reset
           );
         }
 
@@ -143,8 +148,6 @@ module.exports = $ => {
     });
 
     queue.execute(() => {
-      $.log();
-      $.log("FINISH");
       process.exit();
     })
 
@@ -184,12 +187,5 @@ module.exports = $ => {
 
   $.on("betiny:server:start", checkOnStart);
   $.on("betiny:process:start", checkOnStart);
-
-  $.arguments.add('test:mysql', async args => {
-    await $.mysql.install({
-      file: '/install.sql',
-      dbname: 'nuts'
-    });
-  });
 
 };

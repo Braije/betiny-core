@@ -17,7 +17,7 @@ require("./core/server.js")(betiny);
 require("./core/mysql.js")(betiny);
 
 require("./core/middleware.js")(betiny);
-//require("./core/session.js")(betiny);
+require("./core/session.js")(betiny);
 require("./core/routes.js")(betiny);
 
 require("./core/queue.js")(betiny);
