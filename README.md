@@ -1,3 +1,7 @@
+#### Memo
+
+    redis-commander :)
+
 # About
 A framework using a custom wrapper API to reduce the amount of dependencies and enforce the security. The goal is to greatly simplify the common tools with a friendly syntax and separate the framework architecture from the business logic.
 
@@ -7,7 +11,7 @@ Less code is better :)
 We try to reduce the amount of dependencies as much as possible by using the standart module.
 
 ## Install
-As usual. You can also use the [boilerplate](#) (TODO)
+As usual. You can also use the [boilerplate](https://github.com/Braije/betiny-boilerplate)
 
     yarn add betiny-core
 

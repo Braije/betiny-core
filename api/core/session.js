@@ -23,17 +23,6 @@ module.exports = $ => {
         retryStrategy (times) {
             count++;
             return 3000;
-        },
-
-        // TODO: check if it work.
-        reconnectOnError (err) {
-            const targetError = "READONLY";
-            console.log("---", err);
-            if (err.message.includes(targetError)) {
-
-                // Only reconnect when the error contains "READONLY"
-                return true; // or `return 1;`
-            }
         }
     });
 
@@ -75,7 +64,7 @@ module.exports = $ => {
      * DISPLAY INFO ON CONNECTION SUCCESS
      */
 
-    redis.on("ready", (err) => {
+    redis.on("ready", () => {
 
         isRedis = true;
 
@@ -88,7 +77,9 @@ module.exports = $ => {
     });
 
     /**
-     * PRIVATE
+     * GET GUID
+     * Same as google analytics or piwik :)
+     * We extract as much as possible common stats from user request to build a GUID.
      * 
      * @param {*} req 
      * @returns 
@@ -110,7 +101,7 @@ module.exports = $ => {
             return req.headers[entry];
         });
 
-        console.log(str);
+        // console.log(str); 
         
         let str2 = str.join(',') + req.socket.remoteAddress;
 
@@ -121,35 +112,63 @@ module.exports = $ => {
      * MIDDLEWARE
      */
 
+    // TODO: fallback version if redis down :)
     // 340MB = 1 million entry.
     let memorySessionFallback = [];
 
-    $.middleware.add("redis", 70, (req, res, next) => {
+    $.middleware.add("redis", 70, async (req, res, next) => {
 
-        let userSession = getGUID(req);
+        // Unique session id based on requester input.
+        let sessionID = "session_" + getGUID(req);
 
-        req.redis = {
+        /*
+        await redis.set(sessionID, JSON.stringify({
+            name: 'Roberta McDonald',
+            toto: "tutu"    
+        })); 
+        /* */
+        
 
-            id: userSession,
+        // Extend property.
+        req.session = {
 
-            get: (key) => {
+            id: sessionID,
+
+            get: async (key) => {
+
                 if (isRedis) {
-                    return JSON.parse(redis.get(key));
+
+                    //console.log("REDIS", sessionID);
+
+                    return await redis.get(sessionID).then(res => {
+
+                        if (res) {
+                            return JSON.parse(res);
+                        }
+                        else {
+                            return {};
+                        }
+
+                    }).catch( err => {
+                        return {};
+                    });
                 }
+                
             },
 
-            set: (key, value) => {
+            set: async (key, value, maxage = (60 * 60 * 24 * 7)) => {
                 if (isRedis) { 
-                    redis.set(key, JSON.stringify(value));
+                    redis.set(key, JSON.stringify(value), "EX", maxage);
                 }
             },
 
-            destroy: () => {
+            remove: () => {
                 if (isRedis) {
+                    // TODO: really needed?
                 }
             }
 
-        };
+        }; 
 
         next();
 
