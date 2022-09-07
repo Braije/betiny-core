@@ -68,7 +68,7 @@ Object.keys(styleCodes).map(styleCode => {
         open: `\x1B[${styleCodes[styleCode][0]}m`,
         close: `\x1B[${styleCodes[styleCode][1]}m`,
     };
-    colors[styleCode] = styles[styleCode]["open"];
+    colors[styleCode] = styles[styleCode].open;
 });
 
 /**
@@ -90,6 +90,6 @@ let color = { ...colors, ...{
 
 color.space = (nbr) => {
     return Array(nbr).join(' ');
-}
+};
 
 module.exports = color;

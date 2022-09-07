@@ -149,7 +149,7 @@ module.exports = $ => {
 
     queue.execute(() => {
       process.exit();
-    })
+    });
 
   };
 
@@ -180,9 +180,9 @@ module.exports = $ => {
       $.log(
           $.color.space(6) + $.color.end,
           $.color.fgGray + "DATABASE:",
-          $.color.fgGreen + "MYSQL" + $.color.reset
+          $.color.fgGreen + "MYSQL" + $.color.reset + "\n"
       );
-    })
+    });
   };
 
   $.on("betiny:server:start", checkOnStart);

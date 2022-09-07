@@ -8,7 +8,7 @@ require('dotenv').config({
 
 const env = (name, fallback) => {
   return process.env[name] || fallback || null;
-}
+};
 
 module.exports = $ => {
   $.env = env;

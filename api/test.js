@@ -133,7 +133,7 @@ module.exports = $ => {
                             "\n     ", last + "     ",
                             $.color.reset
                         );
-                    })
+                    });
                 }
 
                 else {
@@ -231,7 +231,7 @@ module.exports = $ => {
         // TODO: $.file.dir(), secure, restrict + aliasing.
         const readdirSync = (p, a = []) => {
             if (fs.statSync(p).isDirectory()) {
-                fs.readdirSync(p).map(f => readdirSync(a[a.push(path.join(p, f)) - 1], a))
+                fs.readdirSync(p).map(f => readdirSync(a[a.push(path.join(p, f)) - 1], a));
             }
             return a;
         };
@@ -243,8 +243,9 @@ module.exports = $ => {
             return {
                 path: path.resolve(str),
                 name: path.basename(str)
+           
             };
-        })
+        });
 
         process.stdout.moveCursor(0,-1);
         process.stdout.clearLine();

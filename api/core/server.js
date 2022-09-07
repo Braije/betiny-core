@@ -25,7 +25,8 @@ module.exports = $ => {
    * TODO: Allow encoding, decoding?
    * TODO: rename as $.store?
    */
-/*
+
+  /*
   $.local = $.local || {};
 
   $.local.set = (name, content) => {
@@ -36,7 +37,8 @@ module.exports = $ => {
     return check().get(name);
   };
 
-  $.local.env = $.env;*/
+  $.local.env = $.env;
+  */
 
   /**
    * SERVER
@@ -57,7 +59,7 @@ module.exports = $ => {
         port: port,
         host: hostname,
         url: 'http://' + hostname + ':' + port
-      }
+      };
     },
 
     instance: () => {
@@ -68,7 +70,12 @@ module.exports = $ => {
       return _express;
     },
 
-    start: async (...args) => {
+    /**
+     * TODO: Configure with JSON
+     * @param  {...any} args
+     */
+
+    start: (...args) => {
 
       this.engine = check();
 
@@ -87,12 +94,13 @@ module.exports = $ => {
         isMain: isMain
       });
 
-      let server = await this.engine.listen(port, hostname, () => {
+      let server = this.engine.listen(port, hostname, () => {
 
         $.fire('betiny:arguments:check');
 
-        if (typeof (args[2] || args[1] || args[0]) === 'function') {
-          (args[2] || args[1] || args[0])();
+        let callback = args[2] || args[1] || args[0];
+        if (typeof callback === 'function') {
+          setTimeout(callback, 250);
         }
 
       });
@@ -108,7 +116,7 @@ module.exports = $ => {
           $.log(e.message);
         }
 
-        $.fire("betiny:server:error");
+        $.fire("betiny:server:error", e);
 
         server.close(() => {
           $.fire("betiny:server:close");

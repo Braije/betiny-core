@@ -100,7 +100,7 @@ module.exports = $ => {
           update: info.mtime,
           access: info.atime,
           change: info.ctime
-        }
+        };
 
         // File.
         if (info.isFile) {
@@ -115,7 +115,7 @@ module.exports = $ => {
         return result;
       }
       catch (e) {
-        return {}
+        return {};
       }
     },
 
@@ -288,6 +288,6 @@ module.exports = $ => {
 
     }
 
-  }
+  };
 
 };

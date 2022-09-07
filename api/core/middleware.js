@@ -33,7 +33,7 @@ module.exports = $ => {
         temp[index] = {
           name: item.name,
           fnc: item.fnc
-        }
+        };
       });
       return temp;
     },
@@ -49,7 +49,7 @@ module.exports = $ => {
       if (!_chain) {
         let list = $.middleware.list();
         _chain = Object.keys(list).map(entry => {
-          return list[entry].fnc
+          return list[entry].fnc;
         });
       }
       return _chain;
