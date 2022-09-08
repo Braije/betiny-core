@@ -5,9 +5,13 @@
  * TODO: Express-session seems not work from axios request :(
  */
 
-const Redis = require('ioredis');
+const ioredis = require('ioredis');
 
 module.exports = $ => {
+
+    /**
+     * REFERENCES
+     */
 
     let count = 0;
     let isRedis = false;
@@ -16,7 +20,7 @@ module.exports = $ => {
      * INITIALIZE CONNECTION
      */
 
-    const redis = new Redis({
+    const redis = new ioredis({
         name: "betiny",
         role: "client-requester",
         maxRetriesPerRequest: 5,
@@ -108,11 +112,59 @@ module.exports = $ => {
         return $.hash(str2);
     };
 
+    const encode = (data) => {
+        let stringify = JSON.stringify(data);
+        return Buffer.from(stringify).toString('base64');
+    };
+
+    const decode = (data) => {
+        let atob = Buffer.from(data, 'base64').toString('binary');
+        return JSON.parse(atob);
+    };
+
+    const validate = (what) => {
+        return (what === false) ? false : (what || null);
+    };
+
+    const get = (obj, path) => {
+        return path.split(/[\.\[\]\'\"]/).filter(p => p).reduce((o, p) => {
+            return o ? validate(o[p]) : null;
+        }, obj);
+    };
+
+    const set = (obj, path, value) => {
+        path.split('.').reduce((o,p,i) => {
+            return o[p] = path.split('.').length === ++i ? value : o[p] || {};
+        }, obj);
+        return obj;
+    };
+
+    const copy = (obj, from, to) => {
+        var val = get(obj, from);
+        if (val || val === false) {
+            set(obj, to, val);
+        }
+
+        return obj;
+    };
+
+    const move = (obj, from, to) => {
+        copy(obj, from, to);
+        var path = from.split('.');
+        while (path.length > 1) {
+            let key = path.shift();
+            if (obj && obj[key]) {
+                obj = obj[key];
+            }
+        }
+        delete obj[path[0]];
+    };
+
     /**
      * MIDDLEWARE
+     * TODO: fallback version if redis down :)
      */
 
-    // TODO: fallback version if redis down :)
     // 340MB = 1 million entry.
     let memorySessionFallback = [];
 
@@ -121,54 +173,62 @@ module.exports = $ => {
         // Unique session id based on requester input.
         let sessionID = "session_" + getGUID(req);
 
-        /*
-        await redis.set(sessionID, JSON.stringify({
-            name: 'Roberta McDonald',
-            toto: "tutu"    
-        })); 
-        /* */
-        
-
         // Extend property.
         req.session = {
 
+            // Public.
             id: sessionID,
 
-            get: async (key) => {
+            // Promise return.
+            get: (path) => {
 
                 if (isRedis) {
 
-                    //console.log("REDIS", sessionID);
+                    return redis.get(sessionID).then(code => {
+                        
+                        let response = decode(code);
 
-                    return await redis.get(sessionID).then(res => {
-
-                        if (res) {
-                            return JSON.parse(res);
-                        }
-                        else {
-                            return {};
+                        if (path) {
+                            return get(response, path);
                         }
 
-                    }).catch( err => {
+                        return response;
+
+                    }).catch(() => {
                         return {};
                     });
+
                 }
-                
+
+                // TODO: memory for local testing and fallback?
+                else if (memorySessionFallback[sessionID]) {
+                    return {};
+                }
+
+                return {};
+
             },
 
-            set: async (key, value, maxage = (60 * 60 * 24 * 7)) => {
+            set: (path, value, maxage = (60 * 60 * 24 * 7)) => {
+
                 if (isRedis) { 
-                    redis.set(key, JSON.stringify(value), "EX", maxage);
-                }
-            },
+                    
+                    if (path && value) {
+                        req.session.get().then(data => {
 
-            remove: () => {
-                if (isRedis) {
-                    // TODO: really needed?
+                            set(data, path, value);
+
+                            redis.set(sessionID, encode(data), "EX", maxage);
+
+                        }); 
+                    }
+
                 }
+
             }
 
-        }; 
+
+        };
 
         next();
 

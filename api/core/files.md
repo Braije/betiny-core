@@ -1,6 +1,8 @@
 
 [Back to home](../../README.md)
 
+**TODO:** Provide a read/write stream data.
+
 ### FILE SYSTEM
 To increase the security, the file system is restricted to "TEMP_PATH" (.env) folder.
 The file system prevent any access outside this folder! All methods are sync.
@@ -58,9 +60,11 @@ The response for a file request can be an empty string on error.
 All path reference is related to the TEMP_PATH folder.
 
     $.file.create("/newfolder");
+    $.file.create("/newfolder/file.txt", "any data");
 
     
 
-#### $.file.create(path, data)
+#### $.file.delete(path)
  
-    $.file.delete
+    $.file.delete("./folder");
+    $.file.delete("/folder/file.txt");
