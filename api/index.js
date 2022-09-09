@@ -1,5 +1,6 @@
 /**
  * MAIN WRAPPER
+ * TODO: CHECK NODE VERSION => process.version
  */
 
 let betiny = {};
@@ -12,9 +13,7 @@ require("./core/queue.js")(betiny);
 require("./core/files.js")(betiny);
 
 require("./core/mysql.js")(betiny);
-
 require("./core/server.js")(betiny);
-
 require("./core/arguments.js")(betiny);
 
 require("./core/middleware.js")(betiny);

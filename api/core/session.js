@@ -60,7 +60,6 @@ module.exports = $ => {
                 );
             }
 
-            // TODO: here switch to a memory cache on local?
         }
     });
 
@@ -161,14 +160,53 @@ module.exports = $ => {
     };
 
     /**
+     * COOKIES
+     * 
+     * @param {*} request 
+     * @returns 
+     */
+    
+    const getCookie = (request) => {
+        const list = {};
+        const cookieHeader = request.headers?.cookie;
+        if (!cookieHeader) {
+            console.log(request.headers);
+            return list;
+        }
+
+        cookieHeader.split(`;`).forEach((cookie) => {
+            let [ name, ...rest] = cookie.split(`=`);
+            name = name?.trim();
+            if (!name) {
+                return;
+            }
+            const value = rest.join(`=`).trim();
+            if (!value) {
+                return;
+            }
+            list[name] = value;
+        });
+    
+        return list;
+    };
+
+    const setCookie = (res, name, value, domain, secure, httpOnly, expires, path) => {
+        let opts = {
+          domain,
+          secure,
+          httpOnly,
+          expires: new Date(expires),
+          path
+        };
+        return append(res, "Set-Cookie", cookie_1.serialize(name, value, opts));
+    };
+
+    /**
      * MIDDLEWARE
      * TODO: fallback version if redis down :)
      */
 
-    // 340MB = 1 million entry.
-    let memorySessionFallback = [];
-
-    $.middleware.add("redis", 70, async (req, res, next) => {
+    $.middleware.add("session-redis", 160, async (req, res, next) => {
 
         // Unique session id based on requester input.
         let sessionID = "session_" + getGUID(req);
@@ -200,11 +238,6 @@ module.exports = $ => {
 
                 }
 
-                // TODO: memory for local testing and fallback?
-                else if (memorySessionFallback[sessionID]) {
-                    return {};
-                }
-
                 return {};
 
             },
@@ -214,6 +247,7 @@ module.exports = $ => {
                 if (isRedis) { 
                     
                     if (path && value) {
+
                         req.session.get().then(data => {
 
                             set(data, path, value);
@@ -221,6 +255,7 @@ module.exports = $ => {
                             redis.set(sessionID, encode(data), "EX", maxage);
 
                         }); 
+                        
                     }
 
                 }
