@@ -47,7 +47,8 @@ module.exports = $ => {
                 console.log(
                     $.color.space(6) + $.color.child,
                     $.color.fgGray + "SESSION",
-                    $.color.fgRed + "REDIS" + $.color.reset
+                    $.color.fgRed + "REDIS" + $.color.reset,
+                    "->", $.color.fgGreen + "COOKIE" + $.color.reset
                 );
             }
 
@@ -80,36 +81,8 @@ module.exports = $ => {
     });
 
     /**
-     * GET GUID
-     * Same as google analytics or piwik :)
-     * We extract as much as possible common stats from user request to build a GUID.
-     * 
-     * @param {*} req 
-     * @returns 
+     * PRIVATE
      */
-
-    const getGUID = (req) => {
-
-        let str = Object.keys(req.headers).filter(entry => {
-            return [
-                "host", 
-                "sec-ch-ua",
-                "sec-ch-ua-mobile",
-                "sec-ch-ua-platform",
-                "user-agent",
-                "accept-language"
-            ].indexOf(entry) > -1;
-            
-        }).map(entry => {
-            return req.headers[entry];
-        });
-
-        // console.log(str); 
-        
-        let str2 = str.join(',') + req.socket.remoteAddress;
-
-        return $.hash(str2);
-    };
 
     const encode = (data) => {
         let stringify = JSON.stringify(data);
@@ -160,109 +133,165 @@ module.exports = $ => {
     };
 
     /**
-     * COOKIES
-     * 
-     * @param {*} request 
-     * @returns 
+     * PRIVATE SESSION 
      */
+
+    const session = {
+
+        /**
+         * GET GUID
+         * Same as google analytics or piwik :)
+         * We extract as much as possible common stats from user request to build a GUID.
+         * 
+         * @param {*} req 
+         * @returns 
+         */
+
+        guid: (req) => {
+
+            let str = Object.keys(req.headers).filter(entry => {
+                return [
+                    "host", 
+                    "sec-ch-ua",
+                    "sec-ch-ua-mobile",
+                    "sec-ch-ua-platform",
+                    "user-agent",
+                    "accept-language"
+                ].indexOf(entry) > -1;
+                
+            }).map(entry => {
+                return req.headers[entry];
+            });
     
-    const getCookie = (request) => {
-        const list = {};
-        const cookieHeader = request.headers?.cookie;
-        if (!cookieHeader) {
-            console.log(request.headers);
-            return list;
+            // console.log(str); 
+            
+            let str2 = str.join(',') + req.socket.remoteAddress;
+    
+            return $.hash(str2);
+        },
+
+        /**
+         * GET SESSION
+         * 
+         * @param {*} path 
+         * @param {*} sessionID 
+         * @param {*} req 
+         * @param {*} res 
+         * @returns 
+         */
+
+        get: (path, sessionID, req, res) => {
+
+            if (isRedis) {
+
+                return redis.get(sessionID).then(code => {
+                    
+                    let response = decode(code);
+
+                    return (path) ? get(response, path) : response;
+
+                }).catch(() => {});
+
+            }
+
+            return new Promise((resolve, reject) => {
+
+                let cooks = {};
+
+                const cookieHeader = req.headers?.cookie;
+                if (!cookieHeader) {
+                    resolve(cooks);
+                    return cooks;
+                }
+
+                cookieHeader.split(";").map(cookie => {
+                    let [ name, ...rest] = cookie.split("=");
+                    name = name?.trim();
+                    if (!name) {
+                        return;
+                    }
+                    const value = rest.join("=").trim();
+                    if (!value) {
+                        return;
+                    }
+                    cooks = decode(value);
+                });
+
+                resolve(cooks);
+                return cooks;
+
+            });
+
+        },
+
+        /**
+         * SET SESSION
+         * 
+         * @param {*} path 
+         * @param {*} value 
+         * @param {*} maxage 
+         * @param {*} req 
+         * @param {*} res 
+         */
+
+        set: (path, value, maxage = (60 * 60 * 24 * 7), sessionID, req, res) => {
+
+            if (!path || !value) {
+                return;
+            };
+
+            if (isRedis) { 
+                    
+                return session.get(path, sessionID, req, res).then(data => {
+
+                    set(data, path, value);
+
+                    redis.set(sessionID, encode(data), "EX", maxage);
+
+                }); 
+
+            }
+
+            return session.get(path, sessionID, req, res).then(data => {
+
+                set(data, path, value);
+
+                // "Max-age:xxx", <-- no session
+                // "Expire=xxx" <-- no session
+                let opts = [
+                    sessionID + "=" + encode(data),
+                    "SameSite=Lax",
+                    "HttpOnly",
+                    "Secure"
+                ].join("; ");
+
+                res.setHeader("Set-Cookie", opts);
+
+            });
+
         }
-
-        cookieHeader.split(`;`).forEach((cookie) => {
-            let [ name, ...rest] = cookie.split(`=`);
-            name = name?.trim();
-            if (!name) {
-                return;
-            }
-            const value = rest.join(`=`).trim();
-            if (!value) {
-                return;
-            }
-            list[name] = value;
-        });
-    
-        return list;
-    };
-
-    const setCookie = (res, name, value, domain, secure, httpOnly, expires, path) => {
-        let opts = {
-          domain,
-          secure,
-          httpOnly,
-          expires: new Date(expires),
-          path
-        };
-        return append(res, "Set-Cookie", cookie_1.serialize(name, value, opts));
-    };
+        
+    }
 
     /**
      * MIDDLEWARE
      * TODO: fallback version if redis down :)
      */
 
-    $.middleware.add("session-redis", 160, async (req, res, next) => {
+    $.middleware.add("session", 160, (req, res, next) => {
 
         // Unique session id based on requester input.
-        let sessionID = "session_" + getGUID(req);
+        let sessionID = "session_" + session.guid(req);
 
         // Extend property.
         req.session = {
-
-            // Public.
             id: sessionID,
-
-            // Promise return.
             get: (path) => {
-
-                if (isRedis) {
-
-                    return redis.get(sessionID).then(code => {
-                        
-                        let response = decode(code);
-
-                        if (path) {
-                            return get(response, path);
-                        }
-
-                        return response;
-
-                    }).catch(() => {
-                        return {};
-                    });
-
-                }
-
-                return {};
-
+                return session.get(path, sessionID, req, res);
             },
-
             set: (path, value, maxage = (60 * 60 * 24 * 7)) => {
-
-                if (isRedis) { 
-                    
-                    if (path && value) {
-
-                        req.session.get().then(data => {
-
-                            set(data, path, value);
-
-                            redis.set(sessionID, encode(data), "EX", maxage);
-
-                        }); 
-                        
-                    }
-
-                }
-
+                return session.set(path, value, maxage, sessionID, req, res);
             }
-
-
         };
 
         next();

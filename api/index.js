@@ -24,4 +24,7 @@ require("./test.js")(betiny);
 
 betiny.fire("betiny:preload");
 
+// Prevent error message from fetch under NODE.JS 18+
+process.removeAllListeners('warning');
+
 module.exports = betiny;
