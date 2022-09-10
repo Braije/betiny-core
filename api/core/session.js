@@ -1,8 +1,7 @@
 /**
- * SESSION
- * We use REDIS to store data between 2 process.
- * 
- * TODO: Express-session seems not work from axios request :(
+ * BETINY SESSION
+ * We use REDIS to store data between 2 process ...
+ * ... with a cookie session as fallback for local.
  */
 
 const ioredis = require('ioredis');
@@ -13,7 +12,7 @@ module.exports = $ => {
      * REFERENCES
      */
 
-    let count = 0;
+    let nbrRetry = 0;
     let isRedis = false;
 
     /**
@@ -23,27 +22,34 @@ module.exports = $ => {
     const redis = new ioredis({
         name: "betiny",
         role: "client-requester",
-        maxRetriesPerRequest: 5,
+        maxRetriesPerRequest: 1,
         retryStrategy (times) {
-            count++;
-            return 3000;
-        }
+            nbrRetry++;
+            return 300;
+        }    
+        // port: $.env("REDIS_PORT", 6379),
+        // host: $.env("REDIS_HOST", "127.0.0.1"),
+        // username: $.env("REDIS_USER"),
+        // password: $.env("REDIS_PASSWORD")
     });
 
     /**
      * DISCONNECT ON ERROR
      */
 
-    redis.on("error", (err) => {
+    redis.on("error", err => {
 
         // Redis server is not joinable.
         if (err.message.includes("ECONNREFUSED")) {
+
+            // Turn off global.
+            isRedis = false;
 
             // Disconnect the client request.    
             redis.disconnect();
 
             // At start, not blocking issue in the list.
-            if (count === 0) {
+            if (nbrRetry === 0) {
                 console.log(
                     $.color.space(6) + $.color.child,
                     $.color.fgGray + "SESSION",
@@ -55,13 +61,18 @@ module.exports = $ => {
             // If happen after the start process, drop a warning message.
             // TODO: Send an email to SYSOP? History log?
             else {
+
                 console.log(
-                    "\n" + $.color.space(5) + $.color.bgRed + $.color.fgBrightWhite + " REDIS " +
-                    $.color.reset + "\n"
+                    $.color.space(0) + $.color.bgRed + $.color.fgBrightWhite + " REDIS " +
+                    $.color.reset + " disconnected or offline."
                 );
+
+                $.fire("betiny:session:disconnected");
+
             }
 
         }
+
     });
 
     /**
@@ -163,11 +174,10 @@ module.exports = $ => {
                 return req.headers[entry];
             });
     
-            // console.log(str); 
-            
             let str2 = str.join(',') + req.socket.remoteAddress;
+            let hash = $.hash(str2);
     
-            return $.hash(str2);
+            return hash;
         },
 
         /**
@@ -177,7 +187,7 @@ module.exports = $ => {
          * @param {*} sessionID 
          * @param {*} req 
          * @param {*} res 
-         * @returns 
+         * @returns
          */
 
         get: (path, sessionID, req, res) => {
@@ -185,15 +195,23 @@ module.exports = $ => {
             if (isRedis) {
 
                 return redis.get(sessionID).then(code => {
-                    
-                    let response = decode(code);
 
-                    return (path) ? get(response, path) : response;
+                    let reply = {};
+
+                    if (code) {
+                        reply = decode(code);
+                    }
+ 
+                    if (path && reply) {
+                        reply = get(reply, path)
+                    }
+
+                    return reply || {};
 
                 }).catch(() => {});
 
             }
-
+            
             return new Promise((resolve, reject) => {
 
                 let cooks = {};
@@ -201,16 +219,17 @@ module.exports = $ => {
                 const cookieHeader = req.headers?.cookie;
                 if (!cookieHeader) {
                     resolve(cooks);
-                    return cooks;
+                    return;
                 }
 
                 cookieHeader.split(";").map(cookie => {
                     let [ name, ...rest] = cookie.split("=");
                     name = name?.trim();
-                    if (!name) {
+
+                    if (!name || !name.startsWith("betiny_")) {
                         return;
                     }
-                    const value = rest.join("=").trim();
+                    let value = rest.join("=").trim();
                     if (!value) {
                         return;
                     }
@@ -218,7 +237,7 @@ module.exports = $ => {
                 });
 
                 resolve(cooks);
-                return cooks;
+                return;
 
             });
 
@@ -240,26 +259,27 @@ module.exports = $ => {
                 return;
             };
 
-            if (isRedis) { 
-                    
-                return session.get(path, sessionID, req, res).then(data => {
+            // Get a fresh version.
+            return session.get(false, sessionID, req, res).then(data => {
 
-                    set(data, path, value);
+                // TODO: Why it return true?
+                if (data === true) {
+                    return;
+                } 
 
-                    redis.set(sessionID, encode(data), "EX", maxage);
+                // Update path.
+                let refresh = set(data, path, value);
 
-                }); 
+                // REDIS.
+                if (isRedis) { 
+                    return redis.set(sessionID, encode(refresh), "EX", maxage);
+                }
 
-            }
-
-            return session.get(path, sessionID, req, res).then(data => {
-
-                set(data, path, value);
-
+                // FALLBACK => COOKIE SESSION
                 // "Max-age:xxx", <-- no session
                 // "Expire=xxx" <-- no session
                 let opts = [
-                    sessionID + "=" + encode(data),
+                    sessionID + "=" + encode(refresh),
                     "SameSite=Lax",
                     "HttpOnly",
                     "Secure"
@@ -267,7 +287,7 @@ module.exports = $ => {
 
                 res.setHeader("Set-Cookie", opts);
 
-            });
+            }); 
 
         }
         
@@ -275,13 +295,13 @@ module.exports = $ => {
 
     /**
      * MIDDLEWARE
-     * TODO: fallback version if redis down :)
+     * A custom session middleware :-)
      */
 
-    $.middleware.add("session", 160, (req, res, next) => {
+    $.middleware.add("betiny-session", 160, (req, res, next) => {
 
         // Unique session id based on requester input.
-        let sessionID = "session_" + session.guid(req);
+        let sessionID = "betiny_" + session.guid(req);
 
         // Extend property.
         req.session = {
@@ -293,6 +313,11 @@ module.exports = $ => {
                 return session.set(path, value, maxage, sessionID, req, res);
             }
         };
+
+        // Auto-clear cookie when REDIS is available.
+        if (isRedis) {
+            res.clearCookie(sessionID);
+        }
 
         next();
 

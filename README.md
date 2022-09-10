@@ -1,7 +1,3 @@
-#### Memo
-
-    redis-commander :)
-
 # About
 A framework using a custom wrapper API to reduce the amount of dependencies and enforce the security. The goal is to greatly simplify the common tools with a friendly syntax and separate the framework architecture from the business logic.
 
