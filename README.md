@@ -34,10 +34,13 @@ Otherwise, create your own ".env" and fill it with your own informations
 
 # API
 
-- [Server]
-- [Middleware]
+    const $ = require('betiny-core'); 
+
+- [Server](./api/core/server.md)
+- [Routes](./api/core/routes.md)
+- [Middleware](./api/core/middleware.md)
 - [Session](./api/core/session.md)
-- [Arguments]
+- [Arguments](./api/core/arguments.md)
 - [File system](./api/core/files.md)
 - [Database](./api/core/mysql.md)
 - [Events]

@@ -2,9 +2,7 @@
 [Back to home](../../README.md)
 
 # Database
-Feel free to use any other database module but the Mysql come from with the default package.
-
-    const $ = require('betiny-core'); 
+Feel free to use any other database module but the Mysql come with the default package.
 
 ## Mysql 2.0
 

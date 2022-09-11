@@ -3,13 +3,11 @@
 
 **TODO:** Provide a read/write stream data.
 
-### FILE SYSTEM
+## FILE SYSTEM
 To increase the security, the file system is restricted to "TEMP_PATH" (.env) folder.
 The file system prevent any access outside this folder! All methods are sync.
 
-    const $ = require('betiny-core'); 
-
-#### $.file.stats(path)
+### $.file.stats(path)
 All path reference is related to the TEMP_PATH folder.
 
     $.file.stats("/"); // See below
@@ -29,7 +27,7 @@ On error the response is always an empty JSON object. On succes, the response is
     }
    
 
-#### $.file.exist(path)
+### $.file.exist(path)
 All path reference is related to the TEMP_PATH folder.
 
     $.file.exist("./") // true
@@ -37,7 +35,7 @@ All path reference is related to the TEMP_PATH folder.
     $.file.exist("exist.txt") // true
     $.file.exist("./folder/path/unexisting.js") // false
 
-#### $.file.read(path)
+### $.file.read(path)
 All path reference is related to the TEMP_PATH folder.
 
     $.file.read("/");
@@ -56,15 +54,13 @@ The response for a file request can be an empty string on error.
 (!) No stream data are available yet.
 
 
-#### $.file.create(path, data)
+### $.file.create(path, data)
 All path reference is related to the TEMP_PATH folder.
 
     $.file.create("/newfolder");
     $.file.create("/newfolder/file.txt", "any data");
 
-    
-
-#### $.file.delete(path)
+### $.file.delete(path)
  
     $.file.delete("./folder");
     $.file.delete("/folder/file.txt");
