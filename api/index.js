@@ -20,8 +20,6 @@ require("./core/middleware.js")(betiny);
 require("./core/session.js")(betiny);
 require("./core/routes.js")(betiny);
 
-require("./test.js")(betiny);
-
 betiny.fire("betiny:preload");
 
 // Prevent error message from fetch under NODE.JS 18+

@@ -1,6 +1,6 @@
 /**
  * QUEUE
- * Funny test with ES6 :-)
+ * TODO: Review to ES6 as class
  */
 
 module.exports = $ => {

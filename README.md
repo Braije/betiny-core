@@ -3,6 +3,8 @@ A framework using a custom wrapper API to reduce the amount of dependencies and 
 
 Less code is better :)
 
+![betiny](./docs/betiny.jpg)
+
 ### Dependencies
 We try to reduce the amount of dependencies as much as possible by using the standart module.
 
@@ -34,7 +36,7 @@ Otherwise, create your own ".env" and fill it with your own informations
 
 - [Server]
 - [Middleware]
-- [Session]
+- [Session](./api/core/session.md)
 - [Arguments]
 - [File system](./api/core/files.md)
 - [Database](./api/core/mysql.md)

@@ -271,13 +271,13 @@ module.exports = $ => {
                 let refresh = set(data, path, value);
 
                 // REDIS.
-                if (isRedis) { 
+                if (isRedis) {
+                    
+                    // Remove "return" to use cookie session all the time as fallback?
                     return redis.set(sessionID, encode(refresh), "EX", maxage);
                 }
 
                 // FALLBACK => COOKIE SESSION
-                // "Max-age:xxx", <-- no session
-                // "Expire=xxx" <-- no session
                 let opts = [
                     sessionID + "=" + encode(refresh),
                     "SameSite=Lax",
@@ -298,7 +298,7 @@ module.exports = $ => {
      * A custom session middleware :-)
      */
 
-    $.middleware.add("betiny-session", 160, (req, res, next) => {
+    $.middleware.add("betiny-session", 150, (req, res, next) => {
 
         // Unique session id based on requester input.
         let sessionID = "betiny_" + session.guid(req);
