@@ -30,7 +30,7 @@ You can list any existing arguments
 
     yarn start arguments:list 
 
-![custom command](../../docs/arguments_list.jpg)
+![command list](../../docs/arguments_list.jpg)
 
 
 

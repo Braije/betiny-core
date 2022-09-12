@@ -9,15 +9,15 @@ Less code is better :)
 We try to reduce the amount of dependencies as much as possible by using the standart module.
 
 ## Install
-As usual. You can also use the [boilerplate](https://github.com/Braije/betiny-boilerplate)
+As usual ... 
 
     yarn add betiny-core
 
-Otherwise, create your own ".env" and fill it with your own informations
+... create your own ".env" and fill it with your own informations
 
     NODE_ENV=dev
 
-    # TODO: allow range
+    # TODO: Allow range?
     HTTP_PORT=3001
     HTTP_HOST=127.0.0.1
 
@@ -32,9 +32,27 @@ Otherwise, create your own ".env" and fill it with your own informations
     MYSQL_CONNECTION_LIMIT=100
     MYSQL_DATABASE=betiny
 
-# API
+You can also use the [boilerplate](https://github.com/Braije/betiny-boilerplate) or start with this basic example:
 
-    const $ = require('betiny-core'); 
+    const $ = require('betiny-core')
+
+    $.middleware.add("myCustom", 200, (req, res, next) => {
+        // Any ...
+        next()
+    })
+
+    $.route.get('/', (req, res, next) => {
+        res.send("My root path serve.r")
+    })
+
+    $.arguments.add('myCommand', async () => {
+        // Any ...
+        process.exit()
+    })
+
+    $.server.start()
+
+# API
 
 - [Server](./api/core/server.md)
 - [Routes](./api/core/routes.md)
