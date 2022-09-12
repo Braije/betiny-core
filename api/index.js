@@ -11,6 +11,7 @@ require("./core/log.js")(betiny);
 require("./core/utils.js")(betiny);
 require("./core/queue.js")(betiny);
 require("./core/files.js")(betiny);
+require("./core/request.js")(betiny);
 
 require("./core/mysql.js")(betiny);
 require("./core/server.js")(betiny);

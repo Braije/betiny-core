@@ -26,19 +26,14 @@ module.exports = $ => {
    * TODO: rename as $.store?
    */
 
-  /*
-  $.local = $.local || {};
-
-  $.local.set = (name, content) => {
-    check().set(name, content);
+  $.local = {
+    set: (name, content) => {
+      check().set(name, content);
+    },
+    get: name => {
+      return check().get(name);
+    }
   };
-
-  $.local.get = name => {
-    return check().get(name);
-  };
-
-  $.local.env = $.env;
-  */
 
   /**
    * SERVER
@@ -71,6 +66,7 @@ module.exports = $ => {
     },
 
     /**
+     * START ...
      * TODO: Configure with JSON
      * @param  {...any} args
      */
@@ -138,32 +134,31 @@ module.exports = $ => {
    * EVENTS CATCHER (START)
    */
 
-  $.on("betiny:process:start", cfg => {
+  const about = (what) => {
     $.log("\n");
     $.log(
         $.color.check,
-        "CHILDREN PROCESS START" + $.color.fgCyan,
+        what + $.color.fgCyan,
         $.server.url()
     );
     $.log(
         $.color.space(6) + $.color.child,
-        $.color.fgGray + "PROCESS:",
-        $.color.fgGreen + process.pid + $.color.reset
+        $.color.fgGray + "NODE:",
+        $.color.fgGreen + process.version + $.color.reset
     );
+    $.log(
+      $.color.space(6) + $.color.child,
+      $.color.fgGray + "PROCESS:",
+      $.color.fgGreen + process.pid + $.color.reset
+    );
+  };
+
+  $.on("betiny:process:start", cfg => {
+    about("CHILDREN PROCESS START");
   });
 
   $.on("betiny:server:start", cfg => {
-    $.log("\n");
-    $.log(
-        $.color.check,
-        "MAIN PROCESS START" + $.color.fgCyan,
-        $.server.url()
-    );
-    $.log(
-        $.color.space(6) + $.color.child,
-        $.color.fgGray + "PROCESS:",
-        $.color.fgGreen + process.pid + $.color.reset
-    );
+    about("MAIN PROCESS START");
   });
 
 };
