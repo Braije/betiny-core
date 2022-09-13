@@ -6,7 +6,9 @@
  * https://jsonplaceholder.typicode.com/users
  */
 
- module.exports = $ => {
+//const puppeteer = require('puppeteer');
+
+module.exports = $ => {
 
     /*
     fetch('http://127.0.0.1:3033', { 
@@ -39,10 +41,24 @@
 
     };
 
-    $.request = {
+    $.browser = {
         get: () => {},
-        post: () => {},
-        stream: () => {}
+        visit: () => {}
+    };
+
+    $.http = {
+        visit: () => {
+            // puppeteer
+        },
+        get: () => {
+            // fetch
+        },
+        post: () => {
+            // fetch
+        },
+        stream: () => {
+            // axios
+        }
     }
 
  };
