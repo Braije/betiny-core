@@ -257,7 +257,7 @@ module.exports = $ => {
 
             if (!path || !value) {
                 return;
-            };
+            }
 
             // Get a fresh version.
             return session.get(false, sessionID, req, res).then(data => {
@@ -291,7 +291,7 @@ module.exports = $ => {
 
         }
         
-    }
+    };
 
     /**
      * MIDDLEWARE

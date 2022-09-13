@@ -33,64 +33,72 @@ module.exports = $ => {
 
         };
 
-        this.execute = fnc => {
+        this.execute = async fnc => {
 
             let total = _cache.length;
 
-            const runs = async result => {
+            return new Promise((resolve, reject) => {
 
-                let exec = _cache[0];
+                const runs = async result => {
 
-                _cache.shift();
+                    let exec = _cache[0];
 
-                count++;
+                    _cache.shift();
 
-                if (typeof exec === 'function') {
+                    count++;
 
-                    let data = await exec(result);
+                    if (typeof exec === 'function') {
 
-                    if (typeof data === 'string') {
-                        error.push({
-                            index: count,
-                            response: data
-                        });
-                    }
-                    else {
-                        success.push({
-                            index: count,
-                            response: data
-                        });
-                    }
+                        let data = await exec(result);
 
-                    if (config.continue === false && data !== true) {
-
-                        if (typeof fnc === 'function') {
-                            fnc({
+                        if (typeof data === 'string') {
+                            error.push({
                                 index: count,
-                                error: error
+                                response: data
+                            });
+                        }
+                        else {
+                            success.push({
+                                index: count,
+                                response: data
                             });
                         }
 
-                        return;
+                        if (config.continue === false && data !== true) {
+
+                            if (typeof fnc === 'function') {
+                                fnc({
+                                    index: count,
+                                    error: error
+                                });
+                                resolve();
+                            }
+
+                            return;
+                        }
+
+                        setTimeout( () => {
+                            runs(data);
+                        }, config.delay);
+
                     }
 
-                    setTimeout( () => {
-                        runs(data);
-                    }, config.delay);
+                    // END.
+                    else if (typeof fnc === 'function') {
+                        fnc({
+                            error: error,
+                            success: success,
+                            total: total
+                        });
+                        resolve();
+                    }
 
-                }
-                else if (typeof fnc === 'function') {
-                    fnc({
-                        error: error,
-                        success: success,
-                        total: total
-                    });
-                }
+                };
 
-            };
+                setTimeout(runs, config.delay);
 
-            setTimeout(runs, config.delay);
-
+            });
+            
         };
 
         return this;
