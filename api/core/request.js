@@ -6,130 +6,362 @@
  * https://jsonplaceholder.typicode.com/users
  */
 
-//const puppeteer = require('puppeteer');
+/* HTTP STATUS CODE
+
+100	Continue
+101	Switching protocols
+102	Processing
+103	Early Hints
+
+    200	OK
+201	Created
+202	Accepted
+203 Non-Authoritative Information
+204	No Content
+205	Reset Content
+206	Partial Content
+207	Multi-Status
+208	Already Reported
+226	IM Used
+
+300	Multiple Choices
+301	Moved Permanently
+302	Found (Previously "Moved Temporarily")
+303	See Other
+304	Not Modified
+305	Use Proxy
+306	Switch Proxy
+307	Temporary Redirect
+308	Permanent Redirect
+
+400	Bad Request
+401	Unauthorized
+402	Payment Required
+403	Forbidden
+404	Not Found
+405	Method Not Allowed
+406	Not Acceptable
+407	Proxy Authentication Required
+    408	Request Timeout
+409	Conflict
+410	Gone
+411	Length Required
+412	Precondition Failed
+413	Payload Too Large
+414	URI Too Long
+415	Unsupported Media Type
+416	Range Not Satisfiable
+417	Expectation Failed
+418	I'm a Teapot
+421	Misdirected Request
+422	Unprocessable Entity
+423	Locked
+424	Failed Dependency
+425	Too Early
+426	Upgrade Required
+428	Precondition Required
+429	Too Many Requests
+431	Request Header Fields Too Large
+451	Unavailable For Legal Reasons
+
+500	Internal Server Error
+    501	Not Implemented
+502	Bad Gateway
+503	Service Unavailable
+504	Gateway Timeout
+505	HTTP Version Not Supported
+506	Variant Also Negotiates
+507	Insufficient Storage
+508	Loop Detected
+510	Not Extended
+511	Network Authentication Required
+
+*/
 
 module.exports = $ => {
 
-    /*
-    fetch('http://127.0.0.1:3033', { 
+    /**
+     * MAIN REQUESTER
+     * WIP ....
+     * 
+     * TODO: manage others content-type later :(
+     * 
+     * @param {*} url 
+     * @param {*} options 
+     * @returns 
+     */
 
-        method: "GET", // POST
+    const request = (url, options = {}) => {
 
-        credentials: "include" // omit || same-origin || include 
+        /**
+         * STATS
+         * We want an estimation time took for each request.
+         */
 
-        // cache: "", // default, no-store, reload, no-cache, force-cache, and only-if-cached
-        // redirect: "",  // follow, error, manual
-        // headers: "",
-        // body: "",
-        // mode: "cors", // cors || no-cors || same-origin
-        // referrer : "",
-        // referrerPolicy: "",
-        // integrity = "",
-        // keepalive = "",
-        // signal = ""
+        let timeMS = process.hrtime();
 
-    }).then(res => {
+        /**
+         * DEFAULT PARAMETERS
+         */
 
-    });
-    */
-
-    const get = (url, options = {}) => {
-
-        // Default.
         let params = { ... {
-            timeout: 15000
-        }, options}; 
 
-        // Wrap inside a promise to manage root error.
+            // Retry on "fetch failed".
+            retry: 3,
+
+            // Force an error after x ms.
+            timeout: 15000,
+
+            // follow || error || manual
+            redirect: "follow", 
+            
+            // cors || no-cors || same-origin
+            mode: "cors", 
+
+            // default || no-store || reload || no-cache || force-cache || only-if-cached
+            cache: "default",
+
+            // GET || POST
+            method: "GET",
+
+            // omit || same-origin || include
+            credentials: "include",
+
+            // no-referrer || client || URL
+            // referrer: "client",
+
+            // no-referrer || no-referrer-when-downgrade || 
+            // origin || origin-when-cross-origin || unsafe-url
+            referrerPolicy: "origin",
+
+            // Allow the request to outlive the page
+            keepalive: false,
+
+            // Allows you to communicate with a fetch request and abort it if desired.
+            // signal: true,
+
+            // USE BY POST
+            // headers: "",
+            // body: "",
+
+            // NOT USE.
+            // integrity: ""
+ 
+        }, ...options}; 
+
+        /**
+         * HRTIME to MS
+         * Convert an HRTIME value to MS
+         */
+
+        const toMs = () => {
+
+            // The end[0] is in seconds, end[1] is in nanoseconds
+            var end = process.hrtime(timeMS); 
+
+            // Convert first to ns then to ms
+            const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000; 
+
+            // Format as number.
+            return Number((timeInMs+"").split(".")[0]);
+
+        };
+
+        /**
+         * FETCH
+         * Wrap inside a promise to manage root error.
+         */
+
         return new Promise((resolve, reject) => {
 
-            // For the lonnng pooling request.
-            let timer;
+            /**
+             * LONG POOLING
+             * We force an error on long pooling request.
+             */
+            
+            let timer = setTimeout(() => {
+
+                reject({
+                    code: 408, 
+                    response: "Request Timeout: " + params.timeout,
+                    time: toMs()
+                });
+
+            }, params.timeout);
+
+            /**
+             * UNMANAGE ERROR
+             * We want to manage unmanage error :-)
+             */
 
             try {
-                return fetch(url, {}).then(async res => {
 
-                    console.log(res.ok, res.status, params.timeout)
+                /**
+                 * FETCH
+                 * Fetch is natively support as experimental based on node.js 16.4+
+                 */
 
-                    // Fallback for long pooling.
-                    timer = setTimeout(() => {
-                        reject({code: 602, response: "Time out"});
-                    }, params.timeout);
+                return fetch(url, params).then(async res => {
 
-                    // 
+                    /**
+                     * CONTENT TYPE
+                     * Based on this property we can adapt the response.
+                     */
+
+                    let contentType = res.headers.get("content-type");
+
+                    /**
+                     * VALID RESPONSE
+                     */
+
                     if (res.ok && res.status === 200) {
 
+                        // Cancel the long pooling fallback.
                         clearTimeout(timer);
 
-                        let txt = await res.text();
+                        /**
+                         * THE RESULT :-)
+                         * This is the default...
+                         */
 
-                        let json = false;
+                        let result = "";
 
-                        try {
-                            json = JSON.parse(txt);
+                        /**
+                         * RESPONSE JSON
+                         */
+
+                        if (contentType.includes('application/json')) {
+                            result = await res.json();
                         }
-                        catch(e) {
-                            json = txt;
+
+                        /**
+                         * RESPONSE TEXT
+                         */
+
+                        else {
+                            result = await res.text();
                         }
 
-                        resolve({code: 200, response: json});
+                        /**
+                         * REPLY
+                         */
+
+                        resolve({
+                            code: res.status, 
+                            response: result,
+                            time: toMs()
+                        });
 
                     }
+
+                    /**
+                     * INVALID RESPONSE
+                     * We want to manage invalid response.
+                     */
+
                     else {
-                        reject({code: 601, response: "Response not ok"});
+
+                        reject({
+                            code: res.status, 
+                            response: "Response was not ok",
+                            time: toMs()
+                        });
+
                     }
-                    
 
-                }).catch(e => {
+                /**
+                 * ERROR FOM FETCH API
+                 * Manage custom error based on fetch api.
+                 */
 
-                    reject({code: 600, response: e.message });
+                }).catch(err => {
+
+                    /*params.retry--;
+
+                    if (params.retry) {
+                        request(url, params).catch(e => {
+                            reject({
+                                code: 501, 
+                                response: "Not Implemented: " + err.message,
+                                time: toMs() 
+                            });
+                        })
+                    }
+
+                    else {*/
+                        reject({
+                            code: 501, 
+                            response: "Not Implemented: " + err.message,
+                            time: toMs() 
+                        });
+                    //}
 
                 })
+
             }
+
+            /**
+             * UNMANAGE ERROR
+             * Unmanage error based on fetch api.
+             */
+
             catch(e) {
-                reject(e.message);
+
+                reject({
+                    code: 600, 
+                    response: e.message,
+                    time: toMs()
+                });
+
             }
 
         });
 
     };
 
+    /**
+     * TEST AREA :)
+     */
+
     $.on("betiny:test", async () => {
 
-        await get("http://127.0.0.1:3033")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        await get("/")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        /*await get("https://jsonplaceholder.typicode.com/users")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));*/
-
+        let toto = 0;
+        [...Array(240)].map(async (e, index) => {
             
+            await request("http://127.0.0.1:3033/random")
+            .then(res => {
+                //console.log("ok", index);
+            })
+            .catch(e => {
+                console.log("ERROR", index,  e);
+            });
+
+        });
+
+        return;
+
+        await request("http://127.0.0.1:3033")
+            .then(res => console.log(res))
+            .catch(e => console.log(e));
+
+        await request("/")
+            .then(res => console.log(res))
+            .catch(e => console.log(e));
+
+        await request("http://127.0.0.1:3033/noresponse")
+            .then(res => console.log(res))
+            .catch(e => console.log(e));
+
+        await request("http://127.0.0.1:3033/noresponse", { timeout: 2000 })
+            .then(res => console.log(res))
+            .catch(e => console.log(e));
+
+        /*
+        await request("https://jsonplaceholder.typicode.com/users")
+            .then(res => console.log(res))
+            .catch(e => console.log(e));
+        /* */
 
     });
-
-    $.browser = {
-        get: () => {},
-        visit: () => {}
-    };
-
-    $.http = {
-        visit: () => {
-            // puppeteer
-        },
-        get: () => {
-            // fetch
-        },
-        post: () => {
-            // fetch
-        },
-        stream: () => {
-            // axios
-        }
-    }
 
  };

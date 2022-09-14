@@ -1,5 +1,4 @@
 /.idea
 /.env
 /node_modules
-/temp/*
 /index.js
