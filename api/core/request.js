@@ -236,6 +236,7 @@ module.exports = $ => {
 
                         /**
                          * RESPONSE TEXT
+                         * TODO: manage blob, stream...
                          */
 
                         else {
@@ -325,20 +326,42 @@ module.exports = $ => {
 
     $.on("betiny:test", async () => {
 
-        let toto = 0;
-        [...Array(240)].map(async (e, index) => {
+        let queue = $.queue({ delay: 0, continue: false, thread: 3 });
+
+        [...Array(10)].map((e, index) => {
             
-            await request("http://127.0.0.1:3033/random")
-            .then(res => {
-                //console.log("ok", index);
+            if (index === 2) {
+                queue.add(async () => {
+                    return "Error";
+                });
+            }
+
+            queue.add(async () => {
+
+                return await request("http://127.0.0.1:3033/random")
+                .then(res => {
+                    console.log("ok", res);
+                    return res;
+                })
+                .catch(e => {
+                    console.log("ERROR", index,  e);
+                    return index;
+                });
+
             })
-            .catch(e => {
-                console.log("ERROR", index,  e);
-            });
 
         });
 
+        queue.execute((stats) => {
+            console.log(
+                "SEQUENCE", 
+                stats.error.map(res => res.response), 
+                stats.success.map(res => res.index) 
+            )
+        });
+
         return;
+        /* */
 
         await request("http://127.0.0.1:3033")
             .then(res => console.log(res))

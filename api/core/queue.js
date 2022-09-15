@@ -1,6 +1,5 @@
 /**
  * QUEUE
- * TODO: Review to ES6 as class
  */
 
 module.exports = $ => {
@@ -15,90 +14,176 @@ module.exports = $ => {
      * @returns {*}
      */
 
-    const queue = (config = { delay: 25,  continue: true }) => {
+    const queue = (params = {}) => {
 
-        let _cache = [], timer, 
-        error = [], success = [], count = 0;
+        /**
+         * PRIVATE
+         */
+
+        let cache = [], 
+            error = [], 
+            success = [], 
+            count = 0, 
+            timer;
+
+        /**
+         * CONFIG
+         */
+
+        let config = { ...{ 
+
+            delay: 25,  
+            continue: true,
+            thread: 1
+
+        }, ...params};
+
+        /**
+         * ADD
+         * Allow you to push one or an array of functions.
+         * 
+         * @param {*} fnc
+         * @returns 
+         */
 
         this.add = fnc => {
 
             if (Array.isArray(fnc)) {
-                _cache = _cache.concat(fnc);
+                cache = cache.concat(fnc);
             }
             else if (typeof fnc === 'function') {
-                _cache.push(fnc);
+                cache.push(fnc);
             }
 
             return this;
 
         };
 
+        /**
+         * EXECUTE
+         * Run the queue sequentially or as thread pipeline.
+         * Partially inspired by https://github.com/rxaviers/async-pool#readme
+         * 
+         * @param {*} fnc 
+         */
+
         this.execute = async fnc => {
 
-            let total = _cache.length;
+            let total = cache.length;
 
-            return new Promise((resolve, reject) => {
+            const executing = new Set();
 
-                const runs = async result => {
+            const refresh = async () => {
+                const [instance] = await Promise.race(executing);
+                executing.delete(instance);
+            };
 
-                    let exec = _cache[0];
+            const terminate = () => {
 
-                    _cache.shift();
+                if (typeof fnc === 'function') {
 
-                    count++;
+                    fnc({
+                        error: error,
+                        success: success,
+                        total: total
+                    });
+    
+                }
 
-                    if (typeof exec === 'function') {
+            };
 
-                        let data = await exec(result);
+            const distribute = (data, index) => {
 
-                        if (typeof data === 'string') {
-                            error.push({
-                                index: count,
-                                response: data
-                            });
-                        }
-                        else {
-                            success.push({
-                                index: count,
-                                response: data
-                            });
-                        }
+                // A string response is = ERROR.
+                if (typeof data === 'string') {
 
-                        if (config.continue === false && data !== true) {
+                    error.push({
+                        index: index,
+                        response: data
+                    });
 
-                            if (typeof fnc === 'function') {
-                                fnc({
-                                    index: count,
-                                    error: error
-                                });
-                                resolve();
-                            }
+                }
 
+                // Otherwise register as success.
+                else {
+
+                    success.push({
+                        index: index,
+                        response: data
+                    });
+
+                }
+
+            };
+
+            // Sequentially.
+            if (config.thread === 1) {
+
+                // Throttle
+                (throttle = async () => {
+
+                    let current = cache[0];
+
+                    cache.shift();
+
+                    if (current) {
+
+                        let data = await current();
+
+                        distribute(data, count);
+
+                        if (config.continue === false && error.length) {
+                            terminate();
                             return;
                         }
 
-                        setTimeout( () => {
-                            runs(data);
-                        }, config.delay);
+                        count++;
+
+                        setTimeout(throttle, config.delay);
+
+                    }
+                    else {
+
+                        terminate();
 
                     }
 
-                    // END.
-                    else if (typeof fnc === 'function') {
-                        fnc({
-                            error: error,
-                            success: success,
-                            total: total
-                        });
-                        resolve();
-                    }
+                })();
 
-                };
+                return; 
+            }
 
-                setTimeout(runs, config.delay);
+            // Thread.
+            cache.map(async (fnc, index) => {
 
-            });
-            
+                const promise = (async () => {
+
+                    return await fnc();
+
+                })().then((data) => {
+                    
+                    distribute(data, index);
+
+                }).then(() => {
+
+                    return [promise];
+
+                }); 
+
+                executing.add(promise);
+                
+                if (executing.size >= config.thread) {
+                    await refresh();
+                }
+    
+            })
+
+            while (executing.size) {
+                await refresh();
+            }
+
+            terminate();
+           
         };
 
         return this;

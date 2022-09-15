@@ -236,6 +236,10 @@ module.exports = $ => {
                     cooks = decode(value);
                 });
 
+                if (path) {
+                    cooks = get(cooks, path);
+                }
+
                 resolve(cooks);
                 return;
 
@@ -274,7 +278,7 @@ module.exports = $ => {
                 if (isRedis) {
                     
                     // Remove "return" to use cookie session all the time as fallback?
-                    return redis.set(sessionID, encode(refresh), "EX", maxage);
+                    redis.set(sessionID, encode(refresh), "EX", maxage);
                 }
 
                 // FALLBACK => COOKIE SESSION
