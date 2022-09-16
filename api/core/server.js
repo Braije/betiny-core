@@ -135,22 +135,19 @@ module.exports = $ => {
    */
 
   const about = (what) => {
-    $.log("\n");
-    $.log(
-        $.color.check,
-        what + $.color.fgCyan,
-        $.server.url()
+
+    console.log( 
+      $.draw()
+        .text("\n")
+        .icon("check").text(" " + what + ": ")
+        .color("cyan").underline().text( $.server.url() ).reset()
+        .text("\n").space(5).icon("child").color("gray").text(" NODE: ")
+          .color("green").text( process.version )
+        .text("\n").space(5).icon("child").color("gray").text(" PROCESS: ")
+          .color("green").text( process.pid )
+        .finish() 
     );
-    $.log(
-        $.color.space(6) + $.color.child,
-        $.color.fgGray + "NODE:",
-        $.color.fgGreen + process.version + $.color.reset
-    );
-    $.log(
-      $.color.space(6) + $.color.child,
-      $.color.fgGray + "PROCESS:",
-      $.color.fgGreen + process.pid + $.color.reset
-    );
+
   };
 
   $.on("betiny:process:start", cfg => {

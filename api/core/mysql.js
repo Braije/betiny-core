@@ -84,28 +84,56 @@ module.exports = $ => {
    * @param params {object}
    */
 
+  $.on("betiny:test", () => {
+
+    $.mysql.install({
+      file: "install.sql",
+      dbname: "test"
+    });
+
+  });
+
   $.mysql.install = async params => {
 
     let file = params.file || false;
     let dbname = params.dbname || false;
 
-    $.log($.color.space(6) + $.color.top);
+    //console.log($.draw().space(5).icon("top").finish());
 
     // Check first if exist.
     if(!$.file.exist(file)) {
-      $.log($.color.space(6) + $.color.end,
-          $.color.fgBlue + "MYSQL INSTALL" + $.color.reset + "\n",
-          $.color.space(8) + "File " +
-          $.color.fgRed +  file.split('/').pop() +  $.color.reset +
-          " not found"
+
+      console.log(
+        $.draw()
+          .icon("error")
+          .space(1)
+          .color("red").text("MYSQL").space(1)
+          .color("gray").text("INSTALL").reset()
+          .text("\n").space(5).icon("top")
+          .text("\n").space(5).icon("end")
+          .text(" File ").color("red").text( file.split('/').pop() )
+          .reset().text(" not found \n")
+          .finish()
       );
+
       process.exit();
+
     }
     else {
-      $.log($.color.space(6) + $.color.end,
-          $.color.fgBlue + "MYSQL INSTALL" + $.color.reset,
-          file.split('/').pop()
+
+      console.log(
+        $.draw()
+          .icon("check")
+          .space(1)
+          .color("green").text("MYSQL").space(1)
+          .color("gray").text("INSTALL").reset()
+          .text("\n").space(5).icon("top")
+          .text("\n").space(5).icon("end")
+          .text(" File ").color("green").text( file.split('/').pop() )
+          .reset().text(" found\n")
+          .finish()
       );
+
     }
 
     // Load file and split it into instruction.
@@ -117,30 +145,40 @@ module.exports = $ => {
 
     // Create the queue
     let size = instructions.length;
-    let queue = $.queue("MYSQL");
+    let queue = $.queue();
 
     // For each instructions.
     instructions.forEach(async (command, index) => {
 
-      queue.push(async () => {
+      queue.add(async () => {
 
         let run = await $.mysql(dbname).query(command).catch(() => {
           return false;
         });
 
         if (run === false) {
-          $.log(
-              $.color.space(8) + $.color.fgRed,
-              "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
-              command.slice(0,35) + "..." + $.color.reset
+
+          console.log(
+            $.draw()
+              .space(7)
+              .space(1)
+              .color("red").text("[" + (index+1) + "/" + size + "] ").reset()
+              .color("gray").text(command.slice(0,35) + "...")
+              .finish()
           );
+
         }
         else {
-          $.log(
-              $.color.space(8) + $.color.fgGreen,
-              "[" + (index+1) + "/" + size + "]" + $.color.fgGray,
-              command.slice(0,35) + "..." + $.color.reset
+
+          console.log(
+            $.draw()
+              .space(7)
+              .space(1)
+              .color("green").text("[" + (index+1) + "/" + size + "] ").reset()
+              .color("gray").text(command.slice(0,35) + "...")
+              .finish()
           );
+
         }
 
       });
@@ -148,6 +186,7 @@ module.exports = $ => {
     });
 
     queue.execute(() => {
+      console.log("\n");
       process.exit();
     });
 
@@ -158,31 +197,43 @@ module.exports = $ => {
    */
 
   $.on("betiny:preload", async () => {
+
     if (!$.env("MYSQL_HOST")) {
-      $.log(
-          "\n" + $.color.error,
-          "MYSQL",
-          "Check your .env configuration"
+      
+      console.log(
+        $.draw().background("red").text(" MYSQL ").reset()
+        .reset().text(" Check your .env configuration").text("\n")
+        .finish()
       );
+
       process.exit();
+
     }
+
   });
 
   const checkOnStart = async  () => {
+
     await $.mysql().query("SELECT 1").catch(() => {
-      $.log(
-          "\n" + $.color.error,
-          "MYSQL",
-          "Check your connection."
+
+      console.log(
+        $.draw().background("red").text(" MYSQL ").reset()
+        .reset().text(" Check your connection.").text("\n")
+        .finish()
       );
+
       process.exit();
+
     }).then(() => {
-      $.log(
-          $.color.space(6) + $.color.end,
-          $.color.fgGray + "DATABASE:",
-          $.color.fgGreen + "MYSQL" + $.color.reset + "\n"
+
+      console.log(
+        $.draw().space(5).icon("end").color("gray").text(" DATABASE: ")
+        .color("green").text("MYSQL").text("\n")
+        .finish()
       );
+
     });
+
   };
 
   $.on("betiny:server:start", checkOnStart);

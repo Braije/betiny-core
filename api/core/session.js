@@ -50,12 +50,15 @@ module.exports = $ => {
 
             // At start, not blocking issue in the list.
             if (nbrRetry === 0) {
+
                 console.log(
-                    $.color.space(6) + $.color.child,
-                    $.color.fgGray + "SESSION",
-                    $.color.fgRed + "REDIS" + $.color.reset,
-                    "->", $.color.fgGreen + "COOKIE" + $.color.reset
+                    $.draw()
+                        .space(5).icon("child").color("gray").text(" SESSION ")
+                        .color("red").text("REDIS").reset().text(" -> ")
+                        .color("green").text("COOKIE")
+                        .finish()
                 );
+
             }
 
             // If happen after the start process, drop a warning message.
@@ -63,8 +66,9 @@ module.exports = $ => {
             else {
 
                 console.log(
-                    $.color.space(0) + $.color.bgRed + $.color.fgBrightWhite + " REDIS " +
-                    $.color.reset + " disconnected or offline."
+                    $.draw().background("red").text(" REDIS ").reset()
+                    .reset().text(" disconnected or offline").text("\n")
+                    .finish()
                 );
 
                 $.fire("betiny:session:disconnected");
@@ -84,9 +88,9 @@ module.exports = $ => {
         isRedis = true;
 
         console.log(
-            $.color.space(6) + $.color.child,
-            $.color.fgGray + "SESSION",
-            $.color.fgGreen + "REDIS" + $.color.reset
+            $.draw()
+                .space(5).icon("child").color("gray").text(" SESSION ")
+                .color("green").text("REDIS").finish()
         );
 
     });

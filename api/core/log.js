@@ -58,6 +58,7 @@ module.exports = $ => {
         }
 
         space (nbr) {
+            nbr++;
             this.txt += Array(nbr).join(' ');
             return this;
         }
@@ -68,7 +69,8 @@ module.exports = $ => {
         }
 
         finish () {
-            return this.txt + $.color.reset;
+            this.txt + $.color.reset;
+            return this.txt;
         }
 
         underline () {
