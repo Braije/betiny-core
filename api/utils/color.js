@@ -79,7 +79,7 @@ Object.keys(styleCodes).map(styleCode => {
 
 let color = { ...colors, ...{
     top: colors.fgGray + "┬" + colors.reset,
-    pipe: colors.fgGray + "|" + colors.reset,
+    pipe: colors.fgGray + "│" + colors.reset,
     child: colors.fgGray + "├─" + colors.reset,
     end: colors.fgGray + "└─" + colors.reset,
     bottom: colors.fgGray + "┴" + colors.reset,
