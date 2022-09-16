@@ -17,6 +17,7 @@ module.exports = $ => {
      * HAHA 
      * A more elegant way to manage color in console with icon etc.
      */
+    
     class Log {
 
         constructor () {

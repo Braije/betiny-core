@@ -84,15 +84,6 @@ module.exports = $ => {
    * @param params {object}
    */
 
-  $.on("betiny:test", () => {
-
-    $.mysql.install({
-      file: "install.sql",
-      dbname: "test"
-    });
-
-  });
-
   $.mysql.install = async params => {
 
     let file = params.file || false;
