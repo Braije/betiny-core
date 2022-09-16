@@ -1,30 +1,29 @@
 /**
- * QUEUE
- */
+ * QUEUE - Braije Christophe 2022
+ * Allow you to run sequentially or as multithread a huge amount of methods 
+ * with less impact of ressources.
+ * 
+ * HOW TO
+ *  $.queue( CONFIG ).add( FNC ).add( [FNC, FNC] ).execute( CALLBACK )
+ * 
+ */  
 
 module.exports = $ => {
 
     /**
-     * PRIVATE
-     * Allow you to run sequentially a huge amount of methods with less impact of ressources.
-     * 
-     *  $.queue( CONFIG ).add( FNC ).add( [FNC, FNC] ).execute( CALLBACK )
-     * 
-     * @param config
-     * @returns {*}
+     * PRIVATE 
      */
 
     const queue = (params = {}) => {
 
         /**
-         * PRIVATE
+         * REFERENCES
          */
 
         let cache = [], 
             error = [], 
             success = [], 
-            count = 0, 
-            timer;
+            count = 0;
 
         /**
          * CONFIG
@@ -70,13 +69,6 @@ module.exports = $ => {
         this.execute = async fnc => {
 
             let total = cache.length;
-
-            const executing = new Set();
-
-            const refresh = async () => {
-                const [instance] = await Promise.race(executing);
-                executing.delete(instance);
-            };
 
             const terminate = () => {
 
@@ -126,52 +118,55 @@ module.exports = $ => {
 
                     cache.shift();
 
-                    if (current) {
-
-                        let data = await current();
-
-                        distribute(data, count);
-
-                        if (config.continue === false && error.length) {
-                            terminate();
-                            return;
-                        }
-
-                        count++;
-
-                        setTimeout(throttle, config.delay);
-
+                    if (!current) {
+                        return terminate()
                     }
-                    else {
 
+                    let data = await current();
+
+                    distribute(data, count);
+
+                    if (config.continue === false && error.length) {
                         terminate();
-
+                        return;
                     }
+
+                    count++;
+
+                    setTimeout(throttle, config.delay);
+
 
                 })();
 
                 return; 
             }
 
+            const executing = new Set();
+
+            const refresh = async () => {
+                const [instance, result, error] = await Promise.race(executing)
+                executing.delete(instance);
+            };
+
             // Thread.
             cache.map(async (fnc, index) => {
 
+                // Auto execute as promise.
                 const promise = (async () => {
 
-                    return await fnc();
+                    let data = await fnc();
 
-                })().then((data) => {
-                    
+                    // Success or error.
                     distribute(data, index);
 
-                }).then(() => {
+                    return [promise, data, error.length]; 
 
-                    return [promise];
+                })();
 
-                }); 
-
+                // Add to the executing queue.
                 executing.add(promise);
                 
+                // Throttle between x thread.
                 if (executing.size >= config.thread) {
                     await refresh();
                 }

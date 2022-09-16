@@ -113,29 +113,29 @@ module.exports = $ => {
             timeout: 15000,
 
             // follow || error || manual
-            redirect: "follow", 
+            // redirect: "follow", 
             
             // cors || no-cors || same-origin
-            mode: "cors", 
+            // mode: "cors", 
 
             // default || no-store || reload || no-cache || force-cache || only-if-cached
-            cache: "default",
+            // cache: "default",
 
             // GET || POST
-            method: "GET",
+            // method: "GET",
 
             // omit || same-origin || include
-            credentials: "include",
+            // credentials: "include",
 
             // no-referrer || client || URL
             // referrer: "client",
 
             // no-referrer || no-referrer-when-downgrade || 
             // origin || origin-when-cross-origin || unsafe-url
-            referrerPolicy: "origin",
+            // referrerPolicy: "origin",
 
             // Allow the request to outlive the page
-            keepalive: false,
+            // keepalive: false,
 
             // Allows you to communicate with a fetch request and abort it if desired.
             // signal: true,
@@ -275,27 +275,45 @@ module.exports = $ => {
                  * Manage custom error based on fetch api.
                  */
 
-                }).catch(err => {
+                }).catch(async err => {
 
-                    /*params.retry--;
+                    clearTimeout(timer);
 
-                    if (params.retry) {
-                        request(url, params).catch(e => {
-                            reject({
-                                code: 501, 
-                                response: "Not Implemented: " + err.message,
-                                time: toMs() 
+                    params.retry--;
+
+                    // Unmanage error.
+                    // https://github.com/nodejs/undici/issues/1248
+                    if (params.retry && err.message === "fetch failed") {
+
+                        await $.delay(Math.random() * params.retry * 100);
+
+                        await request(url, params).then(reData => {
+                            resolve(reData);
+                        }).catch(async err => {
+
+                            params.retry--;
+
+                            await $.delay(Math.random() * params.retry * 100);
+
+                            await request(url, params).then(reData => {
+                                resolve(reData);
+                            }).catch( err => {
+                                reject('Failed on retry');
                             });
+
                         })
+
                     }
 
-                    else {*/
+                    else {
+        
                         reject({
                             code: 501, 
                             response: "Not Implemented: " + err.message,
                             time: toMs() 
                         });
-                    //}
+
+                    }
 
                 })
 
@@ -320,18 +338,41 @@ module.exports = $ => {
 
     };
 
+    $.request = request;
+
     /**
      * TEST AREA :)
      */
 
     $.on("betiny:test", async () => {
 
-        let queue = $.queue({ delay: 0, continue: false, thread: 3 });
+        return;
+        
+        await $.delay(250);
 
-        [...Array(10)].map((e, index) => {
+        let timeMS = process.hrtime();
+        let countCheck = 0;
+
+        let queue = $.queue({ delay: 0, continue: true, thread: 3 });
+
+        [...Array(1500)].map((e, index) => {
             
-            if (index === 2) {
+            queue.add(async () => {
+
+                let d = Math.round(Math.random() * (Math.random() * index));
+                await $.delay(d);
+
+                console.log(index, d);
+
+                return true;
+            });
+
+            return;
+
+            if (index === 4) {
                 queue.add(async () => {
+                    await $.delay(50);
+                    console.log("ERROR on", index);
                     return "Error";
                 });
             }
@@ -340,12 +381,13 @@ module.exports = $ => {
 
                 return await request("http://127.0.0.1:3033/random")
                 .then(res => {
-                    console.log("ok", res);
+                    console.log("ok", index, countCheck, res);
+                    countCheck++;
                     return res;
                 })
                 .catch(e => {
                     console.log("ERROR", index,  e);
-                    return index;
+                    return e.response || e;
                 });
 
             })
@@ -353,38 +395,30 @@ module.exports = $ => {
         });
 
         queue.execute((stats) => {
+
+            const toMs = () => {
+
+                // The end[0] is in seconds, end[1] is in nanoseconds
+                var end = process.hrtime(timeMS); 
+    
+                // Convert first to ns then to ms
+                const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000; 
+    
+                // Format as number.
+                return Number((timeInMs+"").split(".")[0]);
+    
+            };
+
             console.log(
-                "SEQUENCE", 
-                stats.error.map(res => res.response), 
-                stats.success.map(res => res.index) 
+                "\nSEQUENCE: ERROR: ", 
+                stats.error.length,
+                "SUCCESS: ", stats.success.length,
+                " ON", Math.round(toMs() / 1000), "seconds",
+                // stats.error.map(res => res.response), 
+                // stats.success.map(res => res.index) 
             )
         });
 
-        return;
-        /* */
-
-        await request("http://127.0.0.1:3033")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        await request("/")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        await request("http://127.0.0.1:3033/noresponse")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        await request("http://127.0.0.1:3033/noresponse", { timeout: 2000 })
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-
-        /*
-        await request("https://jsonplaceholder.typicode.com/users")
-            .then(res => console.log(res))
-            .catch(e => console.log(e));
-        /* */
-
     });
 
- };
+};

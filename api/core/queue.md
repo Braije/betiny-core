@@ -3,7 +3,7 @@
 ## Queue
 Allow you to run sequentially a huge amount of methods with less impact of ressources. The queue `CONFIG` contains few parameters:
 
-    $.queue({ delay: 50, continue: false })
+    $.queue({ delay: 50, continue: false, thread: 2 })
         .add( FNC )
         .add( [FNC, FNC] )
         .execute( CALLBACK )
@@ -12,6 +12,7 @@ Allow you to run sequentially a huge amount of methods with less impact of resso
 | --- | :-- | :-- |
 | delay | Delay time in ms between 2 functions. <br /> **Default:** 25 | NUMBER |
 | continue | Allow you to stop the queue on error (false). <br /> **Default:** true | BOOLEAN |
+| thread | Allow you to run multiple thread at the same time. (!) Delay and continue parameters are drop when the value is higher then 1. <br /> **Default:** 1 | NUMBER |
 
 
 ### .add( FNC || ARRAY )
