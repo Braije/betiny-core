@@ -96,7 +96,7 @@ module.exports = $ => {
 
         let callback = args[2] || args[1] || args[0];
         if (typeof callback === 'function') {
-          setTimeout(callback, 0);
+          setTimeout(callback, 750);
         }
 
       });

@@ -1,6 +1,6 @@
 {
   "name": "betiny-core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Distribuable version of Betiny engine as module",
   "main": "api/index.js",
   "scripts": {
