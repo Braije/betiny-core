@@ -59,7 +59,6 @@ module.exports = $ => {
 
       // TODO: manage error 404 ...
       error: (req, res) => {
-        $.log("End of routes\n");
         res.json({
           error: "End of road :-)",
         });
@@ -138,11 +137,12 @@ module.exports = $ => {
 
     methods.map(method => {
 
-      $.log("");
-      $.log(
-          $.color.space(4),
-          $.color.fgYellow + method.toUpperCase(),
-          $.color.reset
+      console.log(
+        $.draw()
+          .text("\n")
+          .space(4).background("Magenta").color("black").text(" " + method.toUpperCase() + " ").reset()
+          .text("\n").space(5).icon("top")
+          .finish()
       );
 
       let size = false;
@@ -152,21 +152,28 @@ module.exports = $ => {
         size = list[method].length;
 
         list[method].map((entry, index) => {
-          let last = (index === size - 1) ? $.color.end : $.color.child;
-          $.log(
-              $.color.space(6) + last,
-              url + entry.path,
-              $.color.reset
+
+          let last = (index === size - 1) ? "end" : "child";
+
+          console.log(
+            $.draw()
+              .space(5).icon(last).space(1).underline().color("cyan")
+              .text(url + (entry.path || entry)).reset()
+              .finish()
           );
+
         });
 
       }
 
       if (!size) {
-        $.log(
-            $.color.space(6) + $.color.end,
-            "No routes define"
+
+        console.log(
+          $.draw()
+            .space(5).icon("end").space(1).color("gray").text("No routes define").reset()
+            .finish()
         );
+
       }
 
     });

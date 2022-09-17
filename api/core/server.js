@@ -96,7 +96,7 @@ module.exports = $ => {
 
         let callback = args[2] || args[1] || args[0];
         if (typeof callback === 'function') {
-          setTimeout(callback, 250);
+          setTimeout(callback, 0);
         }
 
       });
@@ -109,7 +109,7 @@ module.exports = $ => {
       const manageError = (e) => {
 
         if (e?.message) {
-          $.log(e.message);
+          console.log(e.message);
         }
 
         $.fire("betiny:server:error", e);

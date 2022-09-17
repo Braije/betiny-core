@@ -47,15 +47,27 @@ module.exports = $ => {
      */
 
     $.arguments.add("events:list", () => {
-        $.log($.color.space(6) + $.color.pipe);
-        eventCache.map((evt, index) => {
-          let last = (index === eventCache.length - 1) ? $.color.end : $.color.child;
-          $.log(
-             $.color.space(6) + last,
-             $.color.fgYellow + evt + $.color.reset
-          );
-        });
-        process.exit();
+
+      console.log(
+        $.draw().space(5).icon("pipe").finish()
+      );
+
+      eventCache.map((evt, index) => {
+
+        let last = (index === eventCache.length - 1) ? "end" : "child";
+
+        console.log(
+          $.draw().space(5).icon(last)
+            .space(1).color("yellow").text(evt)
+            .finish()
+        );
+
+      });
+
+      console.log();
+
+      process.exit();
+
     });
 
   });

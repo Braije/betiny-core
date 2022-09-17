@@ -7,8 +7,8 @@ const color = require("../utils/color.js");
 
 module.exports = $ => {
 
-     // The old one. Was used to disable quickly any usage of log.
-     $.log = console.log;
+    // The old one. Was used to disable quickly any usage of log.
+    $.log = console.log;
 
     // Database references.
     $.color = color;
@@ -34,16 +34,16 @@ module.exports = $ => {
             return this;
         }
 
-        background (color) {
-            let col = $.color["bg" + this.cap(color)];
+        background (c) {
+            let col = color["bg" + this.cap(c)];
             if (col) {
                 this.txt += col;
             }
             return this;
         }
 
-        color (color) {
-            let col = $.color["fg" + this.cap(color)];
+        color (c) {
+            let col = color["fg" + this.cap(c)];
             if (col) {
                 this.txt += col;
             }
@@ -51,7 +51,7 @@ module.exports = $ => {
         }
 
         icon (icon) {
-            let ico = $.color[icon];
+            let ico = color[icon];
             if (ico) {
                 this.txt += ico;
             }
@@ -65,27 +65,27 @@ module.exports = $ => {
         }
 
         reset () {
-            this.txt += $.color.reset;
+            this.txt += color.reset;
             return this;
         }
 
         finish () {
-            this.txt + $.color.reset;
+            this.txt + color.reset;
             return this.txt;
         }
 
         underline () {
-            this.txt += $.color.underline;
+            this.txt += color.underline;
             return this;
         }
 
         strikethrough () {
-            this.txt += $.color.strikethrough;
+            this.txt += color.strikethrough;
             return this;
         }
 
         italic () {
-            this.txt += $.color.italic;
+            this.txt += color.italic;
             return this;
         }
 
@@ -103,7 +103,7 @@ module.exports = $ => {
     $.on("betiny:server:error", () => {
 
         // Color.
-        $.log($.color.reset);
+        console.log($.color.reset);
 
         // Cursor visible.
         process.stderr.write('\x1B[?25h');

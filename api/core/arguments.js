@@ -27,11 +27,11 @@ module.exports = $ => {
       let reference = $.arguments.list();
       let referenceKey = Object.keys(reference);
 
-      $.log(
-          "\n" + $.color.plus,
-          "RUNNING",
-          $.color.fgYellow,
-          refname.toUpperCase()
+      console.log(
+        $.draw()
+          .icon("check").space(1).background("green").text(" RUNNING ").reset().space(1)
+          .color("gray").text(refname)
+          .finish()
       );
 
       referenceKey.map(entry => {
@@ -142,7 +142,6 @@ module.exports = $ => {
   $.on('betiny:arguments:check', async () => {
 
     // Delay to let preload process do some change.
-    // TODO: review this.
     await $.delay(500);
 
     let haveSubProcess = process.argv.slice(2, process.argv.length);
@@ -151,12 +150,15 @@ module.exports = $ => {
         run(haveSubProcess[0]);
       }
       else {
-        $.log(
-            "\n" + $.color.error,
-            "RUNNING",
-            $.color.fgYellow + haveSubProcess[0],
-            $.color.reset + "doesn't exist!\n"
+
+        console.log(
+          $.draw()
+            .icon("error").space(1).background("red").text(" RUNNING ").reset().space(2)
+            .color("red").text(haveSubProcess[0])
+            .space(1).reset().text(" doesn't exist!\n")
+            .finish()
         );
+
         process.exit();
       }
     }
@@ -171,17 +173,24 @@ module.exports = $ => {
 
     let arguments = Object.keys($.arguments.list());
 
-    $.log($.color.space(6) + $.color.pipe);
+    console.log(
+      $.draw().space(5).icon("pipe").finish()
+    );
 
     arguments.map( (args, index) => {
-      let last = (index === arguments.length - 1) ? $.color.end : $.color.child;
-      $.log($.color.space(6) + last,
-          $.color.fgGray + "yarn start",
-          $.color.fgYellow + args + $.color.reset
+
+      let last = (index === arguments.length - 1) ? "end" : "child";
+
+      console.log(
+        $.draw().space(5).icon(last)
+          .space(1).color('gray').text("yarn start")
+          .space(1).color("yellow").text(args)
+          .finish()
       );
+
     });
 
-    $.log();
+    console.log();
 
     process.exit();
 
