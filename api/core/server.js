@@ -140,22 +140,26 @@ module.exports = $ => {
       $.draw()
         .text("\n")
         .icon("check").text(" " + what + ": ")
-        .color("cyan").underline().text( $.server.url() ).reset()
+        .color("green").text( process.pid )
+        // .color("cyan").underline().text( $.server.url() ).reset()
+        .text("\n").space(5).icon("top")
+
+        .text("\n").space(5).icon("child").color("gray").text(" ROOT: ")
+          .color("cyan").underline().text( $.server.url() ).reset()
+
         .text("\n").space(5).icon("child").color("gray").text(" NODE: ")
           .color("green").text( process.version )
-        .text("\n").space(5).icon("child").color("gray").text(" PROCESS: ")
-          .color("green").text( process.pid )
         .finish() 
     );
 
   };
 
   $.on("betiny:process:start", cfg => {
-    about("CHILDREN PROCESS START");
+    about("CHILD PROCESS");
   });
 
   $.on("betiny:server:start", cfg => {
-    about("MAIN PROCESS START");
+    about("MAIN PROCESS");
   });
 
 };
