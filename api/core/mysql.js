@@ -208,6 +208,13 @@ module.exports = $ => {
     await $.mysql().query("SELECT 1").catch(() => {
 
       console.log(
+        $.draw()
+          .space(5).icon("bottom")
+          .text("\n").space(3).color("yellow").text("Ooops!\n").reset()
+        .finish()
+      );
+
+      console.log(
         $.draw().background("red").text(" MYSQL ").reset()
         .reset().text(" Check your connection.").text("\n")
         .finish()
