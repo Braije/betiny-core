@@ -71,7 +71,7 @@ module.exports = $ => {
      * @param  {...any} args
      */
 
-    start: (...args) => {
+    start: async (...args) => {
 
       this.engine = check();
 
@@ -90,7 +90,7 @@ module.exports = $ => {
         isMain: isMain
       });
 
-      let server = this.engine.listen(port, hostname, () => {
+      const success = () => {
 
         $.fire('betiny:arguments:check');
 
@@ -99,7 +99,19 @@ module.exports = $ => {
           setTimeout(callback, 750);
         }
 
+      };
+      
+      let server = this.engine.listen(port, hostname, success);
+
+      let max = 8;
+      server.on("error", () => {
+        port++;
+        max--
+        if (max) {
+          server = this.engine.listen(port, hostname, success);
+        }
       });
+      
 
       /**
        * SERVER CLOSE
@@ -134,19 +146,21 @@ module.exports = $ => {
    * EVENTS CATCHER (START)
    */
 
-  const about = (what) => {
+  const about = async (what) => {
+
+    await $.delay(0);
 
     console.log( 
       $.draw()
         .text("\n")
-        .icon("check").text(" " + what + ": ")
+        .icon("check")
+        .space(1).background("green").text(" " + what + " ").reset()
+        .space(1).color("gray").text("PROCESS").space(1)
         .color("green").text( process.pid )
         // .color("cyan").underline().text( $.server.url() ).reset()
         .text("\n").space(5).icon("top")
-
         .text("\n").space(5).icon("child").color("gray").text(" ROOT: ")
           .color("cyan").underline().text( $.server.url() ).reset()
-
         .text("\n").space(5).icon("child").color("gray").text(" NODE: ")
           .color("green").text( process.version )
         .finish() 
@@ -155,11 +169,11 @@ module.exports = $ => {
   };
 
   $.on("betiny:process:start", cfg => {
-    about("CHILD PROCESS");
+    about("CHILD");
   });
 
   $.on("betiny:server:start", cfg => {
-    about("MAIN PROCESS");
+    about("MAIN");
   });
 
 };
