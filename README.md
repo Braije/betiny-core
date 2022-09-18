@@ -60,12 +60,14 @@ You can also use the [boilerplate](https://github.com/Braije/betiny-boilerplate)
 # API
 
 - [Server](./api/core/server.md)
-- [Routes](./api/core/routes.md)
-- [Middleware](./api/core/middleware.md)
-- [Session](./api/core/session.md)
+    - [Routes](./api/core/routes.md)
+    - [Middleware](./api/core/middleware.md)
+        - [Session](./api/core/session.md)
 - [Arguments](./api/core/arguments.md)
-- [File system](./api/core/files.md)
-- [Database](./api/core/mysql.md)
-- [Events]
-- [Utils]
-- [System]
+- Database
+    - [Mysql](./api/core/mysql.md)
+- Utils
+    - [Console draw](./api/core/log.md)
+    - [File system](./api/core/files.md)
+    - [Queue](./api/core/queue.md)
+    - Events
