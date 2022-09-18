@@ -1,6 +1,6 @@
 
-<p align="center">
-<img width="180" src="./docs/logo.svg">
+<p>
+<img width="240" src="./docs/logo.svg">
 </p>
 
 # About
