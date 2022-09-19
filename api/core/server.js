@@ -94,9 +94,11 @@ module.exports = $ => {
 
         $.fire('betiny:arguments:check');
 
-        let callback = args[2] || args[1] || args[0];
-        if (typeof callback === 'function') {
-          setTimeout(callback, 750);
+        if ($.server.info().port === Number($.env("HTTP_PORT"))) {
+          let callback = args[2] || args[1] || args[0];
+          if (typeof callback === 'function') {
+            setTimeout(callback, 750);
+          }
         }
 
       };

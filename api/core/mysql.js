@@ -96,6 +96,7 @@ module.exports = $ => {
 
       console.log(
         $.draw()
+          .text("\n")
           .icon("error")
           .space(1)
           .color("red").text("MYSQL").space(1)
@@ -114,6 +115,7 @@ module.exports = $ => {
 
       console.log(
         $.draw()
+          .text("\n")
           .icon("check")
           .space(1)
           .color("green").text("MYSQL").space(1)
