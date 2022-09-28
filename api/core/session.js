@@ -93,6 +93,18 @@ module.exports = $ => {
                 .color("green").text("REDIS").finish()
         );
 
+        /* ALLOW TO REGISTER ANY NEW PROCESS/CHILD START 
+        redis.on('message', (channel, message) => {
+            console.log(message);
+        });
+
+        redis.publish("betiny-process-message", JSON.stringify({
+            un: process.pid
+        }));
+        
+        redis.subscribe('betiny-process-message');
+        /* */
+
     });
 
     /**

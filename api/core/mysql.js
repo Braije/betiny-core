@@ -89,8 +89,6 @@ module.exports = $ => {
     let file = params.file || false;
     let dbname = params.dbname || false;
 
-    //console.log($.draw().space(5).icon("top").finish());
-
     // Check first if exist.
     if(!$.file.exist(file)) {
 
