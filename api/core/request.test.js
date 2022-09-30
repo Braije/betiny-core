@@ -48,7 +48,7 @@ describe('Request', () => {
             expect: true,     
             url: "http://127.0.0.1:3033/wait5sec" 
         },
-        { 
+        {  
             desc: "Long pool connection should failed after 15 secondes (default)",
             expect: false,    
             url: "http://127.0.0.1:3033/timeout15sec" 

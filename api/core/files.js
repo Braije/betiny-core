@@ -280,7 +280,7 @@ module.exports = $ => {
           return false;
         }
 
-        fs.rmdirSync(path, { recursive: true, force: true });
+        fs.rmSync(path, { recursive: true, force: true });
         return !$.file.exist(path);
       }
       else {

@@ -23,7 +23,30 @@ require("./core/routes.js")(betiny);
 
 betiny.fire("betiny:preload");
 
-// Prevent error message from fetch under NODE.JS 18+
-process.removeAllListeners('warning');
+/**
+ * Prevent error messages
+ * - The Fetch API is an experimental feature.
+ * - experimental-loader
+ * - Custom ESM Loaders is an experimental feature
+ * - The Node.js specifier resolution flag is experimental
+ * - Importing JSON modules is an experimental feature
+ * 
+ * This one remove all :(
+ * process.removeAllListeners('warning');
+ */
+
+const originalEmit = process.emit; 
+
+process.emit = function (name, data, ...args) {
+  if (name === 'warning' 
+    && typeof data === 'object' 
+    && data.name === 'ExperimentalWarning' 
+    && data.message.includes('experimental') 
+  ) {
+    return false;
+  }
+
+  return originalEmit.apply(process, arguments)
+}
 
 module.exports = betiny;
