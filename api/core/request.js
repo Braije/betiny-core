@@ -230,7 +230,7 @@ module.exports = $ => {
                          * RESPONSE JSON
                          */
 
-                        if (contentType.includes('application/json')) {
+                        if (contentType.includes('json')) {
                             result = await res.json();
                         }
 
