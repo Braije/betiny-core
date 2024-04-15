@@ -1,7 +1,8 @@
 /**
  * REQUEST
  * Node.js v16.4+ use fetch natively as experimental.
- * 
+ * Node.js v18.16+ use fetch natively as official :-)
+ *
  * https://developer.mozilla.org/en-US/docs/Web/API/fetch
  * https://jsonplaceholder.typicode.com/users
  */
@@ -13,7 +14,7 @@
 102	Processing
 103	Early Hints
 
-    200	OK
+200	OK
 201	Created
 202	Accepted
 203 Non-Authoritative Information
@@ -42,7 +43,7 @@
 405	Method Not Allowed
 406	Not Acceptable
 407	Proxy Authentication Required
-    408	Request Timeout
+408	Request Timeout
 409	Conflict
 410	Gone
 411	Length Required
@@ -65,7 +66,7 @@
 451	Unavailable For Legal Reasons
 
 500	Internal Server Error
-    501	Not Implemented
+501	Not Implemented
 502	Bad Gateway
 503	Service Unavailable
 504	Gateway Timeout
@@ -83,12 +84,12 @@ module.exports = $ => {
     /**
      * MAIN REQUESTER
      * WIP ....
-     * 
+     *
      * TODO: manage others content-type later :(
-     * 
-     * @param {*} url 
-     * @param {*} options 
-     * @returns 
+     *
+     * @param {*} url
+     * @param {*} options
+     * @returns
      */
 
     const request = (url, options = {}) => {
@@ -113,10 +114,10 @@ module.exports = $ => {
             timeout: 15000,
 
             // follow || error || manual
-            // redirect: "follow", 
-            
+            // redirect: "follow",
+
             // cors || no-cors || same-origin
-            // mode: "cors", 
+            // mode: "cors",
 
             // default || no-store || reload || no-cache || force-cache || only-if-cached
             // cache: "default",
@@ -130,7 +131,7 @@ module.exports = $ => {
             // no-referrer || client || URL
             // referrer: "client",
 
-            // no-referrer || no-referrer-when-downgrade || 
+            // no-referrer || no-referrer-when-downgrade ||
             // origin || origin-when-cross-origin || unsafe-url
             // referrerPolicy: "origin",
 
@@ -146,8 +147,8 @@ module.exports = $ => {
 
             // NOT USE.
             // integrity: ""
- 
-        }, ...options}; 
+
+        }, ...options};
 
         /**
          * HRTIME to MS
@@ -157,10 +158,10 @@ module.exports = $ => {
         const toMs = () => {
 
             // The end[0] is in seconds, end[1] is in nanoseconds
-            var end = process.hrtime(timeMS); 
+            var end = process.hrtime(timeMS);
 
             // Convert first to ns then to ms
-            const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000; 
+            const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000;
 
             // Format as number.
             return Number((timeInMs+"").split(".")[0]);
@@ -178,11 +179,11 @@ module.exports = $ => {
              * LONG POOLING
              * We force an error on long pooling request.
              */
-            
+
             let timer = setTimeout(() => {
 
                 reject({
-                    code: 408, 
+                    code: 408,
                     response: "Request Timeout: " + params.timeout,
                     time: toMs()
                 });
@@ -248,7 +249,7 @@ module.exports = $ => {
                          */
 
                         resolve({
-                            code: res.status, 
+                            code: res.status,
                             response: result,
                             time: toMs()
                         });
@@ -263,7 +264,7 @@ module.exports = $ => {
                     else {
 
                         reject({
-                            code: res.status, 
+                            code: res.status,
                             response: "Response was not ok",
                             time: toMs()
                         });
@@ -306,11 +307,11 @@ module.exports = $ => {
                     }
 
                     else {
-        
+
                         reject({
-                            code: 501, 
+                            code: 501,
                             response: "Not Implemented: " + err.message,
-                            time: toMs() 
+                            time: toMs()
                         });
 
                     }
@@ -327,7 +328,7 @@ module.exports = $ => {
             catch(e) {
 
                 reject({
-                    code: 600, 
+                    code: 600,
                     response: e.message,
                     time: toMs()
                 });
@@ -347,7 +348,7 @@ module.exports = $ => {
     $.on("betiny:test", async () => {
 
         return;
-        
+
         await $.delay(250);
 
         let timeMS = process.hrtime();
@@ -356,7 +357,7 @@ module.exports = $ => {
         let queue = $.queue({ delay: 0, continue: true, thread: 3 });
 
         [...Array(1500)].map((e, index) => {
-            
+
             queue.add(async () => {
 
                 let d = Math.round(Math.random() * (Math.random() * index));
@@ -399,23 +400,23 @@ module.exports = $ => {
             const toMs = () => {
 
                 // The end[0] is in seconds, end[1] is in nanoseconds
-                var end = process.hrtime(timeMS); 
-    
+                var end = process.hrtime(timeMS);
+
                 // Convert first to ns then to ms
-                const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000; 
-    
+                const timeInMs = (end[0]* 1000000000 + end[1]) / 1000000;
+
                 // Format as number.
                 return Number((timeInMs+"").split(".")[0]);
-    
+
             };
 
             console.log(
-                "\nSEQUENCE: ERROR: ", 
+                "\nSEQUENCE: ERROR: ",
                 stats.error.length,
                 "SUCCESS: ", stats.success.length,
                 " ON", Math.round(toMs() / 1000), "seconds",
-                // stats.error.map(res => res.response), 
-                // stats.success.map(res => res.index) 
+                // stats.error.map(res => res.response),
+                // stats.success.map(res => res.index)
             )
         });
 
